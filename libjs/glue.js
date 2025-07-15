@@ -85,6 +85,7 @@ export const glue = {
     canvas = document.createElement('canvas');
     // const canvas = document.getElementById('canvas');
     // canvas.id = 'canvas';
+    canvas.style.imageRendering = 'pixelated';
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
     canvas.width = width;
