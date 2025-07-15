@@ -44,14 +44,19 @@ To have clangd work create a compile_flags.txt file with the same flags:
 4. call JS_setTimeout(ms) or JS_requestAnimationFrame() in any long running loops (main loop, ones waiting for input or http requests)
 
 ## wasm sourcemaps (chrome only): https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
-- `git clone https://github.com/emscripten-core/emscripten.git`
-- build your program with -g and optionally -lc-dbg instead of -lc for better stack traces
-- run `../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump=/usr/bin/llvm-dwarfdump`
+build your program with -g -O0 and optionally -lc-dbg instead of -lc for better stack traces
+```
+git clone https://github.com/emscripten-core/emscripten.git
+```
+```
+../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump=/usr/bin/llvm-dwarfdump
+```
 or
 ```
 llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump-output=out.wasm.dwarf
 ```
+after this chrome will automatically load the sourcemap linked in the wasm file.
 
 ## Bad stuff
 - pdclib can't format floats yet causing issues with EG quakegeneric options (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
