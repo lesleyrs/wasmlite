@@ -9,7 +9,7 @@ This project uses [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resu
 
 ## Dependencies
 These are stored in [libc](./libc) but have different licenses.
-- [crt1](./libc/crt1.c): and `make crt1` if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
+- [crt1](./libc/crt1.c): `make crt1`, if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
 - [pdclib](https://github.com/lesleyrs/pdclib) stderr is line buffered as opposed to unbuffered since you can't avoid newlines in browser
 - [openlibm](https://github.com/lesleyrs/openlibm) alternative to javascript Math
 
@@ -17,7 +17,7 @@ Optional:
 - bundler/minifier/http server: [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install), npm/node are not needed!
 - emscriptens [wasm-sourcemap.py](https://github.com/emscripten-core/emscripten)
 - [wasm-strip](https://github.com/WebAssembly/wabt)
-- [wasm-opt](https://github.com/WebAssembly/binaryen) this one doesn't appear to do much if already using clang optimizations
+- [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path?
 
 ## Usage
@@ -43,7 +43,9 @@ To have clangd work create a compile_flags.txt file with the same flags:
 3. pdclib doesn't implement posix, see [musl](https://git.musl-libc.org/cgit/musl/tree/src) for implementations
 4. call JS_setTimeout(ms) or JS_requestAnimationFrame() in any long running loops (main loop, ones waiting for input or http requests)
 
-## wasm sourcemaps (chrome only): https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
+## wasm sourcemaps (chrome only):
+https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
+
 build your program with -g -O0 and optionally -lc-dbg instead of -lc for better stack traces
 ```
 git clone https://github.com/emscripten-core/emscripten.git
