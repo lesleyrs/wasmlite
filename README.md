@@ -1,6 +1,6 @@
 # wasmlite (experimental) - like emscripten but with less magic
 
-This project uses `JSPI` which is able to suspend/resume wasm execution meaning we can often port programs with little changes outside of platform code [Ports](#Ports) and avoids the need to export functions to JS to call them from there. This requires modern chrome or enable `javascript.options.wasm_js_promise_integration` in firefox.
+This project uses [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resume wasm execution meaning we can often port programs with [little changes](#Ports) outside of platform code, and avoids the need to export functions to JS to call them from there. This requires modern chrome or enable `javascript.options.wasm_js_promise_integration` in firefox.
 
 ## Features
 - single shared js dependency runs all wasm programs
@@ -8,13 +8,13 @@ This project uses `JSPI` which is able to suspend/resume wasm execution meaning 
 - argc/argv work by default
 
 ## Dependencies
-These are stored in [libc](./libc) but licensed separately.
+These are stored in [libc](./libc) but have different licenses.
 - [crt1](./libc/crt1.c): and `make crt1` if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
 - [pdclib](https://github.com/lesleyrs/pdclib) stderr is line buffered as opposed to unbuffered since you can't avoid newlines in browser
 - [openlibm](https://github.com/lesleyrs/openlibm) alternative to javascript Math
 
 Optional:
-- bundler/minifier/http server [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install) npm/node are not needed!
+- bundler/minifier/http server: [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install), npm/node are not needed!
 - emscriptens [wasm-sourcemap.py](https://github.com/emscripten-core/emscripten)
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen) this one doesn't appear to do much if already using clang optimizations
