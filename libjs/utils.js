@@ -28,13 +28,13 @@ export function allocString(str) {
 
 export function getKey(key) {
   if (key.length === 1) return key.charCodeAt(0);
-  // console.error(`Unhandled key event:`, key);
+  // console.warn(`Unhandled key event:`, key);
   return -1;
 }
 
 export function getCode(code) {
   if (codeMap[code] !== undefined) return codeMap[code];
-  console.error(`Unhandled code event:`, code);
+  console.warn(`Unhandled code event:`, code);
   return -1;
 }
 

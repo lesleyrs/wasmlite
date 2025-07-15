@@ -55,7 +55,7 @@ export function write(fd, buf, count) {
     console.error(str);
     return count;
   } else {
-    console.log("[stub] write: ", fd)
+    console.warn("[stub] write: ", fd)
   }
   return -1;
 }
@@ -109,11 +109,11 @@ export function close(fd) {
 }
 
 export function realpath(path, resolvedPath) {
-  // console.log("[stub] realpath: ", ptrToString(path), resolvedPath);
+  // console.warn("[stub] realpath: ", ptrToString(path), resolvedPath);
   return path;
 }
 
 export function unlink(pathname) {
-  // console.log("[stub] unlinking: ", pathname);
+  // console.warn("[stub] unlinking: ", pathname);
   return 0;
 }
