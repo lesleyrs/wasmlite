@@ -1,0 +1,10 @@
+-Wall
+-Wpedantic
+-Wextra
+-Wshadow
+-Wvla
+
+-std=c99
+
+--target=wasm32
+--sysroot=libc
