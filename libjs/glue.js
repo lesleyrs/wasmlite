@@ -90,6 +90,7 @@ export const glue = {
     canvas.style.margin = 'auto';
     canvas.width = width;
     canvas.height = height;
+    canvas.tabIndex = -1;
 
     // NOTE: 0 pixel margin at top or not?
     // canvas.style.position = 'absolute';
@@ -115,7 +116,7 @@ export const glue = {
   // should we also add removeListener?
   // change this into function per callback type and pass event name?
   JS_addBlurEventListener: (cb) => {
-    window.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
+    canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
   },
   JS_requestPointerLock: () => {
     pointerlock = true;
@@ -141,7 +142,7 @@ export const glue = {
 };
 
 function setMouseEventCallback(name, userData, cb) {
-  window.addEventListener(name, /** @param {MouseEvent} e */ e => {
+  canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
     // create fresh rect to not worry about resize/scroll/orientationchange/fullscreenchange etc callbacks
     const rect = canvas.getBoundingClientRect();
     let rc;
@@ -157,7 +158,7 @@ function setMouseEventCallback(name, userData, cb) {
 }
 
 function setKeyboardEventCallback(name, userData, cb) {
-  window.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
+  canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location
     const rc = exports.__indirect_function_table.get(cb)(userData, getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {
