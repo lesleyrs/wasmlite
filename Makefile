@@ -19,7 +19,6 @@ crt1:
 	clang --target=wasm32 -nostdlib -Wall -Oz -c libc/crt1.c -o libc/lib/crt1.o
 
 cp:
-	$(MAKE) -s html DEBUG=0 > ports/index.html
 	$(MAKE) -s html > ../Client3/index.html
 	$(MAKE) -s html > ../forks/PL3D-KC/index.html
 	$(MAKE) -s html > ../forks/doomgeneric/doomgeneric/index.html

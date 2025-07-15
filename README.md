@@ -11,7 +11,7 @@ LDFLAGS += -Wl,--export=malloc # for JS functions that allocate internally (JS_o
 ```
 Other flags might be useful like -Wl,--stack-first: https://lld.llvm.org/WebAssembly.html
 
-1. run `make html > index.html` (or `make js`) to bundle/minify libjs or grab it from [ports](./ports/index.html)
+1. run `make html > /path/to/project/index.html` (or `make js`) to bundle/minify libjs
 2. run a http server `esbuild --servedir=.` and pass program name + args similar to CLI `/?program&arg 1&arg 2` in the url.
 
 To have clangd work create a compile_flags.txt file with the same flags:
