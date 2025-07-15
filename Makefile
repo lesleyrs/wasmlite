@@ -1,7 +1,7 @@
 TITLE = wasmlite
 DEBUG = 1
 
-ESBUILD = esbuild --format=esm --bundle libjs/loader.js --minify
+ESBUILD = esbuild --format=esm --bundle libjs/loader.js --minify --define:BUNDLER=1
 ifeq ($(DEBUG),1)
 ESBUILD += --sourcemap
 endif

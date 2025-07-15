@@ -75,7 +75,7 @@ export function read(fd, buf, count) {
 }
 
 export const open = new WebAssembly.Suspending(async function(pathPtr, flags, mode) {
-  const path = ptrToString(pathPtr);
+  const path = typeof BUNDLER !== 'undefined' ? ptrToString(pathPtr) : `ports/${ptrToString(pathPtr)}`
   try {
     // const response = await fetch(path, { cache: 'no-cache' });
     const response = await fetch(path, { cache: 'no-store' });
