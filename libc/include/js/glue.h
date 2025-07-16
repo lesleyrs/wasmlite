@@ -48,7 +48,8 @@ typedef bool (*JS_KeyboardCallback)(void *userData, int key, int code, int modif
 // TODO: add focus event?
 
 WASM_IMPORT(void, JS_requestPointerLock, void);
-// visibilitychange didn't run on alt-tab so we use blur
+WASM_IMPORT(void, JS_addPointerLockChangeEventListener, void (*cb)(bool locked));
+// visibilitychange didn't run on alt-tab so we use blur to release keys for example
 WASM_IMPORT(void, JS_addBlurEventListener, void (*cb)(void));
 // pointerup didn't release mouse buttons if multiple were pressed at once so we use mouse events
 WASM_IMPORT(void, JS_addMouseMoveEventListener, void *userData, JS_MouseCallback);

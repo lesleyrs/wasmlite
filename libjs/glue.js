@@ -86,6 +86,8 @@ export const glue = {
     // const canvas = document.getElementById('canvas');
     // canvas.id = 'canvas';
     canvas.style.imageRendering = 'pixelated';
+    canvas.style.outline = 'none';
+    canvas.style.boxShadow = 'none';
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
     canvas.width = width;
@@ -115,12 +117,19 @@ export const glue = {
   // TODO https://developer.mozilla.org/en-US/docs/Web/Events
   // should we also add removeListener?
   // change this into function per callback type and pass event name?
-  JS_addBlurEventListener: (cb) => {
-    canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
-  },
   JS_requestPointerLock: () => {
     pointerlock = true;
-    canvas.addEventListener('click', () => canvas.requestPointerLock())
+    if (!document.pointerLockElement) {
+      canvas.requestPointerLock({unadjustedMovement: true});
+    }
+  },
+  JS_addPointerLockChangeEventListener: (cb) => {
+    document.addEventListener('pointerlockchange', e => {
+        exports.__indirect_function_table.get(cb)(!!document.pointerLockElement);
+    })
+  },
+  JS_addBlurEventListener: (cb) => {
+    canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
   },
   JS_addMouseMoveEventListener: (userData, cb) => {
     setMouseEventCallback('mousemove', userData, cb);
@@ -159,6 +168,15 @@ function setMouseEventCallback(name, userData, cb) {
 
 function setKeyboardEventCallback(name, userData, cb) {
   canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
+    if (e.type === "keydown" && e.altKey && e.key === "Enter") {
+      if (!document.fullscreenElement) {
+        canvas.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+      e.preventDefault();
+      return;
+    }
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location
     const rc = exports.__indirect_function_table.get(cb)(userData, getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {

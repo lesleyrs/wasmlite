@@ -60,7 +60,7 @@ Optional:
 - pdclib for wasm has some remaining issues (like parts of fclose were giving errors and were commented out)
 - Some programs such as doom debug build seem to lag, but it's a chrome browser timing issue (using profiler or changing compile flags stops the issue)
 - Instead of creating new memory arrays due to them getting invalidated, would be better to only do it whenever memory grows?
-- missing JS apis: audio/websockets/fullscreen/touch/gamepad/webgl/webgpu/webworker etc
+- missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state
