@@ -104,7 +104,18 @@ export const glue = {
     ctx = canvas.getContext('2d', { alpha: false });
     imageData = ctx.createImageData(canvas.width, canvas.height);
 
-    window.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.altKey && e.key === "Enter") {
+        if (!document.fullscreenElement) {
+          canvas.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+    document.addEventListener('contextmenu', e => e.preventDefault());
   },
   JS_setFont: (font) => ctx.font = ptrToString(font),
   JS_measureTextWidth: (text) => ctx.measureText(ptrToString(text)).width,
@@ -124,7 +135,7 @@ export const glue = {
     }
   },
   JS_addPointerLockChangeEventListener: (cb) => {
-    document.addEventListener('pointerlockchange', e => {
+    document.addEventListener('pointerlockchange', () => {
         exports.__indirect_function_table.get(cb)(!!document.pointerLockElement);
     })
   },
@@ -168,15 +179,6 @@ function setMouseEventCallback(name, userData, cb) {
 
 function setKeyboardEventCallback(name, userData, cb) {
   canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
-    if (e.type === "keydown" && e.altKey && e.key === "Enter") {
-      if (!document.fullscreenElement) {
-        canvas.requestFullscreen();
-      } else {
-        document.exitFullscreen();
-      }
-      e.preventDefault();
-      return;
-    }
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location
     const rc = exports.__indirect_function_table.get(cb)(userData, getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {

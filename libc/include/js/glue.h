@@ -47,6 +47,7 @@ typedef bool (*JS_KeyboardCallback)(void *userData, int key, int code, int modif
 // typedef bool (*JS_WheelCallback)(void* userData, TODO);
 // TODO: add focus event?
 
+// TODO: on firefox, first left click on a fullscreen canvas using pointerlock sometimes shows it as selected in blue
 WASM_IMPORT(void, JS_requestPointerLock, void);
 WASM_IMPORT(void, JS_addPointerLockChangeEventListener, void (*cb)(bool locked));
 // visibilitychange didn't run on alt-tab so we use blur to release keys for example
