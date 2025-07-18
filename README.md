@@ -54,9 +54,10 @@ Optional:
 ## Limitations
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
 - pdclib for wasm has some remaining issues (like parts of fclose were giving errors and were commented out)
-- Some programs such as doom debug build seem to lag, but it's a chrome browser timing issue (using profiler or changing compile flags stops the issue)
 - Instead of creating new memory arrays due to them getting invalidated, would be better to only do it whenever memory grows?
 - missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
+- Some programs such as doom debug build seem to lag, but it's a browser timing issue (using profiler or changing compile flags stops the issue)
+- Even worse, on some loads it can lag for no reason, fixed by simply refreshing, JSPI is still very new. Try Firefox as it seems to have these issues less often (and it allows uncapped fps for emulators like agbemu/ntremu with tab)
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, emulators don't support saves load/download yet
