@@ -41,6 +41,10 @@ WASM_IMPORT(void, JS_strokeRect, int x, int y, int w, int h);
 #define KMOD_ALT (1 << 2)
 #define KMOD_META (1 << 3)
 
+#define MBTN_LEFT 0
+#define MBTN_MIDDLE 1
+#define MBTN_RIGHT 2
+
 // no event types in callbacks avoids exporting malloc or create mappings as they are js strings, but could be done
 typedef bool (*JS_MouseCallback)(void *userData, int button, int x, int y);
 typedef bool (*JS_KeyboardCallback)(void *userData, int key, int code, int modifiers);

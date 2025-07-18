@@ -59,11 +59,13 @@ Optional:
 - missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
 
 ## Ports
-In some forks the non-wasm targets haven't been kept in a working state
+In some forks the non-wasm targets haven't been kept in a working state, emulators don't support saves load/download yet
 - [Client3](https://github.com/lesleyrs/Client3)
 - [PL3D-KC](https://github.com/lesleyrs/PL3D-KC)
 - [doomgeneric](https://github.com/lesleyrs/doomgeneric)
 - [quakegeneric](https://github.com/lesleyrs/quakegeneric)
+- [agbemu](https://github.com/lesleyrs/agbemu)
+- [ntremu](https://github.com/lesleyrs/ntremu) - seems to only run decrypted roms, need to provide firmware.bin or touch won't work
 
 These emulators are not so accurate but still serve as examples
 - [gdkGBA](https://github.com/lesleyrs/gdkGBA)

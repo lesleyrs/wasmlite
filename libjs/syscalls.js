@@ -93,7 +93,7 @@ export const open = new WebAssembly.Suspending(async function(pathPtr, flags, mo
 
 export function lseek64(fd, offset, whence) {
   const file = fileSystem.fds[fd];
-  if (!file) return -1;
+  if (!file) return BigInt(-1);
   if (whence == SEEK_SET) {
     file.pos = offset;
   } else if (whence == SEEK_CUR) {
