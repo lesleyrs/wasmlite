@@ -127,7 +127,6 @@ export const glue = {
 
   // TODO https://developer.mozilla.org/en-US/docs/Web/Events
   // should we also add removeListener?
-  // change this into function per callback type and pass event name?
   JS_requestPointerLock: () => {
     pointerlock = true;
     if (!document.pointerLockElement) {
@@ -143,33 +142,29 @@ export const glue = {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
   },
   JS_addMouseMoveEventListener: (userData, cb) => {
-    setMouseEventCallback('mousemove', userData, cb);
+    setMouseMoveCB('mousemove', userData, cb);
   },
-  JS_addMouseDownEventListener: (userData, cb) => {
-    setMouseEventCallback('mousedown', userData, cb);
+  JS_addMouseEventListener: (userData, cb) => {
+    setMouseCB('mousedown', userData, cb);
+    setMouseCB('mouseup', userData, cb);
   },
-  JS_addMouseUpEventListener: (userData, cb) => {
-    setMouseEventCallback('mouseup', userData, cb);
-  },
-  JS_addKeyDownEventListener: (userData, cb) => {
-    setKeyboardEventCallback('keydown', userData, cb);
-  },
-  JS_addKeyUpEventListener: (userData, cb) => {
-    setKeyboardEventCallback('keyup', userData, cb);
+  JS_addKeyEventListener: (userData, cb) => {
+    setKeyCB('keydown', userData, cb);
+    setKeyCB('keyup', userData, cb);
   }
   // JS_addWheelEventListener: (userData, cb) => {
   // },
 };
 
-function setMouseEventCallback(name, userData, cb) {
+function setMouseMoveCB(name, userData, cb) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
     // create fresh rect to not worry about resize/scroll/orientationchange/fullscreenchange etc callbacks
     const rect = canvas.getBoundingClientRect();
     let rc;
     if (pointerlock) {
-      rc = exports.__indirect_function_table.get(cb)(userData, e.button, e.movementX, e.movementY);
+      rc = exports.__indirect_function_table.get(cb)(userData, e.movementX, e.movementY);
     } else {
-      rc = exports.__indirect_function_table.get(cb)(userData, e.button, e.x - rect.left, e.y - rect.top);
+      rc = exports.__indirect_function_table.get(cb)(userData, e.x - rect.left, e.y - rect.top);
     }
     if (rc) {
       e.preventDefault();
@@ -177,10 +172,19 @@ function setMouseEventCallback(name, userData, cb) {
   });
 }
 
-function setKeyboardEventCallback(name, userData, cb) {
+function setMouseCB(name, userData, cb) {
+  canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
+    let rc = exports.__indirect_function_table.get(cb)(userData, e.type === 'mousedown', e.button);
+    if (rc) {
+      e.preventDefault();
+    }
+  });
+}
+
+function setKeyCB(name, userData, cb) {
   canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
-    // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location
-    const rc = exports.__indirect_function_table.get(cb)(userData, getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
+    // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location (unused)
+    const rc = exports.__indirect_function_table.get(cb)(userData, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {
       e.preventDefault();
     }

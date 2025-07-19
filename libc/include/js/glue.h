@@ -45,9 +45,9 @@ WASM_IMPORT(void, JS_strokeRect, int x, int y, int w, int h);
 #define MBTN_MIDDLE 1
 #define MBTN_RIGHT 2
 
-// no event types in callbacks avoids exporting malloc or create mappings as they are js strings, but could be done
-typedef bool (*JS_MouseCallback)(void *userData, int button, int x, int y);
-typedef bool (*JS_KeyboardCallback)(void *userData, int key, int code, int modifiers);
+typedef bool (*JS_MouseMoveCallback)(void *userData, int x, int y);
+typedef bool (*JS_MouseCallback)(void *userData, bool pressed, int button);
+typedef bool (*JS_KeyCallback)(void *userData, bool pressed, int key, int code, int modifiers);
 // typedef bool (*JS_WheelCallback)(void* userData, TODO);
 // TODO: add focus event?
 
@@ -56,9 +56,7 @@ WASM_IMPORT(void, JS_addPointerLockChangeEventListener, void (*cb)(bool locked))
 // visibilitychange didn't run on alt-tab so we use blur to release keys for example
 WASM_IMPORT(void, JS_addBlurEventListener, void (*cb)(void));
 // pointerup didn't release mouse buttons if multiple were pressed at once so we use mouse events
-WASM_IMPORT(void, JS_addMouseMoveEventListener, void *userData, JS_MouseCallback);
-WASM_IMPORT(void, JS_addMouseDownEventListener, void *userData, JS_MouseCallback);
-WASM_IMPORT(void, JS_addMouseUpEventListener, void *userData, JS_MouseCallback);
-WASM_IMPORT(void, JS_addKeyDownEventListener, void *userData, JS_KeyboardCallback);
-WASM_IMPORT(void, JS_addKeyUpEventListener, void *userData, JS_KeyboardCallback);
+WASM_IMPORT(void, JS_addMouseMoveEventListener, void *userData, JS_MouseMoveCallback);
+WASM_IMPORT(void, JS_addMouseEventListener, void *userData, JS_MouseCallback);
+WASM_IMPORT(void, JS_addKeyEventListener, void *userData, JS_KeyCallback);
 // WASM_IMPORT(void, JS_addWheelEventListener, void* userData, JS_WheelCallback);
