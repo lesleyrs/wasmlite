@@ -19,6 +19,7 @@ function strlen(ptr, u8) {
 export function allocString(str) {
   const u8 = new Uint8Array(memory.buffer);
   const ptr = exports.malloc(str.length + 1);
+  if (!ptr) return 0;
   for (let i = 0; i < str.length; i++) {
     u8[ptr + i] = str.charCodeAt(i);
   }

@@ -46,8 +46,10 @@ export const glue = {
     if (namePtr) {
       enc = encoder.encode(name);
       str = exports.malloc(enc.length + 1);
+      if (!str) return 0;
     }
     const ptr = exports.malloc(data.byteLength);
+    if (!ptr) return 0;
 
     const u8 = new Uint8Array(memory.buffer);
     const u32 = new Uint32Array(memory.buffer);
