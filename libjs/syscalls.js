@@ -28,6 +28,8 @@ export function JS_getArgs(argvPtr, argvBufPtr) {
   }
 }
 
+const EOF = -1;
+
 const SEEK_SET = 0;
 const SEEK_CUR = 1;
 const SEEK_END = 2;
@@ -57,13 +59,13 @@ export function write(fd, buf, count) {
   } else {
     console.warn("[stub] write: ", fd)
   }
-  return -1;
+  return EOF;
 }
 
 export function read(fd, buf, count) {
   const u8 = new Uint8Array(memory.buffer);
   const file = fileSystem.fds[fd];
-  if (!file) return -1;
+  if (!file) return EOF;
 
   const start = Number(file.pos);
   const data = file.buf.subarray(start, start + count);
@@ -106,14 +108,5 @@ export function lseek64(fd, offset, whence) {
 
 export function close(fd) {
   delete fileSystem.fds[fd];
-}
-
-export function realpath(path, resolvedPath) {
-  // console.warn("[stub] realpath: ", ptrToString(path), resolvedPath);
-  return path;
-}
-
-export function unlink(pathname) {
-  // console.warn("[stub] unlinking: ", pathname);
   return 0;
 }

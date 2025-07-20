@@ -66,8 +66,8 @@ export const glue = {
   }),
   JS_setTimeout: new WebAssembly.Suspending(async (ms) => await new Promise(resolve => setTimeout(resolve, ms))),
   JS_requestAnimationFrame: new WebAssembly.Suspending(async () => await new Promise(resolve => requestAnimationFrame(resolve))),
-  JS_DateNow: () => BigInt(Math.floor(Date.now())),
-  JS_performanceNow: () => BigInt(Math.floor(performance.now())),
+  JS_DateNow: () => Date.now(),
+  JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
     const pixels32 = new Uint32Array(memory.buffer, ptr, canvas.width * canvas.height);
     for (let i = 0; i < pixels32.length; i++) {

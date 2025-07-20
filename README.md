@@ -1,4 +1,4 @@
-# wasmlite (experimental) - like emscripten but with less magic
+# wasmlite - like emscripten but less magical
 
 This project uses [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resume wasm execution meaning we can often port programs with [little changes](#Ports) outside of platform code, and avoids the need to export functions to JS to call them from there. This requires modern chrome or enable `javascript.options.wasm_js_promise_integration` in firefox.
 
@@ -8,8 +8,10 @@ CC = clang --target=wasm32 --sysroot=/path/to/wasm/libc
 LDFLAGS = -nodefaultlibs -lc -lm
 LDFLAGS += -Wl,--export-table # for function pointers access in JS, such as for event listeners
 LDFLAGS += -Wl,--export=malloc # for JS functions that allocate internally (JS_openFilePicker/glGetString)
+LDFLAGS += -Wl,--stack-first # to fail fast on stack overflow, else it will quietly overwrite data
+LDFLAGS += -Wl,-z,stack-size=value # increase stack size
 ```
-Other flags might be useful like -Wl,--stack-first: https://lld.llvm.org/WebAssembly.html
+more options: https://lld.llvm.org/WebAssembly.html
 
 To have clangd work create a compile_flags.txt file with the same flags as CC
 
@@ -38,8 +40,7 @@ llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ```
 after this chrome will automatically load the sourcemap linked in the wasm file.
 
-## Dependencies
-These are stored in [libc](./libc) but have different licenses.
+## Dependencies (different licensing)
 - [crt1](./libc/crt1.c): `make crt1`, if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
 - [pdclib](https://github.com/lesleyrs/pdclib) stderr is line buffered as opposed to unbuffered since you can't avoid newlines in browser
 - [openlibm](https://github.com/lesleyrs/openlibm) alternative to javascript Math
@@ -52,12 +53,11 @@ Optional:
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
 
 ## Limitations
+- no proper file modes for writing/appending files etc, use JS_saveFile()
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
-- pdclib for wasm has some remaining issues (like parts of fclose were giving errors and were commented out)
 - Instead of creating new memory arrays due to them getting invalidated, would be better to only do it whenever memory grows?
 - missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
-- Some programs such as doom debug build seem to lag, but it's a browser timing issue (using profiler or changing compile flags stops the issue)
-- Even worse, on some loads it can lag for no reason, fixed by simply refreshing, JSPI is still very new. Try Firefox as it seems to have these issues less often (and it allows uncapped fps for emulators like agbemu/ntremu with tab)
+- Chrome kills fps with dev console open, and has other lag/timing problems (see doom debug build), temp fix: changing compile flags, enabling profiler
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, emulators don't support saves load/download yet
