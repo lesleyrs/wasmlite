@@ -45,6 +45,11 @@ const fileSystem = {
   nextFd: 3,
 };
 
+export function _exit(status) {
+  // TODO maybe some clean up? remove eventhandlers, canvas etc
+  throw new WebAssembly.RuntimeError(`Program exited with status: ${status}.`);
+}
+
 export function write(fd, buf, count) {
   const u8 = new Uint8Array(memory.buffer);
   const bytes = u8.subarray(buf, buf + count)

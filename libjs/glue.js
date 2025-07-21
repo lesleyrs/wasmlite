@@ -28,9 +28,9 @@ export const glue = {
   JS_openFilePicker: new WebAssembly.Suspending(async (lenPtr, namePtr) => {
     const { data, name } = await new Promise((resolve, reject) => {
       canvas.onclick = () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.onchange = e => {
+        const filepicker = document.createElement('input');
+        filepicker.type = 'file';
+        filepicker.onchange = e => {
           const file = e.target.files[0];
           const reader = new FileReader();
           reader.onload = () => resolve({ data: reader.result, name: file.name });
@@ -38,7 +38,7 @@ export const glue = {
           reader.readAsArrayBuffer(file);
           canvas.onclick = null;
         };
-        input.click();
+        filepicker.click();
       };
     });
 
@@ -87,16 +87,17 @@ export const glue = {
     canvas = document.createElement('canvas');
     // const canvas = document.getElementById('canvas');
     // canvas.id = 'canvas';
-    canvas.style.imageRendering = 'pixelated';
+    canvas.width = width;
+    canvas.height = height;
+    canvas.tabIndex = -1;
     canvas.style.outline = 'none';
     canvas.style.userSelect = 'none';
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
-    canvas.width = width;
-    canvas.height = height;
-    canvas.tabIndex = -1;
+    canvas.style.touchAction = 'manipulation';
+    canvas.style.imageRendering = 'pixelated'; // TODO only looks good at integer multiples, allow changing it
 
-    // NOTE: 0 pixel margin at top or not?
+    // NOTE: 0 pixel margin at top or not? or better way to do this
     // canvas.style.position = 'absolute';
     // canvas.style.left = '50%';
     // canvas.style.top = 0;
@@ -105,6 +106,12 @@ export const glue = {
     document.body.appendChild(canvas);
     ctx = canvas.getContext('2d', { alpha: false });
     imageData = ctx.createImageData(canvas.width, canvas.height);
+
+    canvas.addEventListener('touchstart', () => {
+      if (!document.fullscreenElement) {
+        canvas.requestFullscreen();
+      }
+    });
 
     document.addEventListener('keydown', e => {
       if (e.altKey && e.key === "Enter") {
@@ -128,7 +135,6 @@ export const glue = {
   JS_strokeRect: (x, y, w, h) => ctx.strokeRect(x, y, w, h),
 
   // TODO https://developer.mozilla.org/en-US/docs/Web/Events
-  // should we also add removeListener?
   JS_requestPointerLock: () => {
     pointerlock = true;
     if (!document.pointerLockElement) {
