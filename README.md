@@ -38,7 +38,7 @@ or
 llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump-output=out.wasm.dwarf
 ```
-after this chrome will automatically load the sourcemap linked in the wasm file.
+after this chrome will automatically load the sourcemap linked in the modified wasm file.
 
 ## Dependencies (different licensing)
 - [crt1](./libc/crt1.c): `make crt1`, if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
