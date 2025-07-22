@@ -14,8 +14,8 @@ console.log(exports);
 
 /** @type {WebAssembly.Memory} */
 export const memory = exports.memory;
+let buffer = memory.buffer;
 
-export let buffer = memory.buffer;
 export let u8 = new Uint8Array(buffer);
 export let u32 = new Uint32Array(buffer);
 
