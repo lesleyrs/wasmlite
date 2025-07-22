@@ -1,8 +1,8 @@
-import { args, memory, decoder, encoder } from './loader.js'
+import { args, decoder, encoder, u8, u32, refreshMemory } from './loader.js'
 import { ptrToString } from './utils.js';
 
 export function JS_getArgsSizes(argcPtr, argvSizePtr) {
-  const u32 = new Uint32Array(memory.buffer);
+  refreshMemory();
 
   let totalLength = 0;
   for (const s of args) totalLength += encoder.encode(s).length + 1;
@@ -12,8 +12,7 @@ export function JS_getArgsSizes(argcPtr, argvSizePtr) {
 }
 
 export function JS_getArgs(argvPtr, argvBufPtr) {
-  const u8 = new Uint8Array(memory.buffer);
-  const u32 = new Uint32Array(memory.buffer);
+  refreshMemory();
 
   const argvBase = argvPtr >> 2;
   let argvBufOffset = argvBufPtr;
@@ -51,14 +50,14 @@ export function _exit(status) {
 }
 
 export function write(fd, buf, count) {
-  const u8 = new Uint8Array(memory.buffer);
-  const bytes = u8.subarray(buf, buf + count)
+  refreshMemory();
+  const sub = u8.subarray(buf, buf + count)
   if (fd === stdout) {
-    const str = decoder.decode(bytes);
+    const str = decoder.decode(sub);
     console.log(str);
     return count;
   } else if (fd === stderr) {
-    const str = decoder.decode(bytes);
+    const str = decoder.decode(sub);
     console.error(str);
     return count;
   } else {
@@ -68,7 +67,7 @@ export function write(fd, buf, count) {
 }
 
 export function read(fd, buf, count) {
-  const u8 = new Uint8Array(memory.buffer);
+  refreshMemory();
   const file = fileSystem.fds[fd];
   if (!file) return EOF;
 
@@ -76,8 +75,8 @@ export function read(fd, buf, count) {
   const data = file.buf.subarray(start, start + count);
   file.pos += BigInt(data.length);
 
-  const subarray = u8.subarray(buf, buf + count);
-  subarray.set(data);
+  const sub = u8.subarray(buf, buf + count);
+  sub.set(data);
   return data.length;
 }
 

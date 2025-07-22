@@ -55,7 +55,6 @@ Optional:
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile()
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
-- Instead of creating new memory arrays due to them getting invalidated, would be better to only do it whenever memory grows?
 - missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
 - Chrome kills fps with dev console open, and has other lag/timing problems (see doom debug build), temp fix: changing compile flags, enabling profiler
 
