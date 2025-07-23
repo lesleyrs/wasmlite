@@ -18,6 +18,11 @@ serve:
 crt1:
 	clang --target=wasm32 -nostdlib -Wall -Oz -c crt1.c -o libc/lib/crt1.o
 
+wcrt0:
+	../xcc/wcc -nostdlib -Wall -c crt1.c -o wcrt0.o
+	llvm-ar rcs libc/lib/wcrt0.a wcrt0.o
+	rm wcrt0.o
+
 cp:
 	$(MAKE) -s html > ../Client3/index.html
 	$(MAKE) -s html > ../forks/PL3D-KC/index.html

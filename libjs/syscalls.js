@@ -46,7 +46,7 @@ const fileSystem = {
 
 export function _exit(status) {
   // TODO maybe some clean up? remove eventhandlers, canvas etc
-  throw new WebAssembly.RuntimeError(`Program exited with status: ${status}.`);
+  throw new WebAssembly.RuntimeError(`Program exited with status: ${status}`);
 }
 
 export function write(fd, buf, count) {
