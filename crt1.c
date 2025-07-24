@@ -28,11 +28,7 @@ void _start(void) {
     exit(rc);
 }
 
-#ifdef __XCC
 __attribute__((weak))
-#else
-__attribute__((__weak__))
-#endif
 int __main_void(void) {
     /* Fill in the arguments from JS syscalls. */
     int argc;
