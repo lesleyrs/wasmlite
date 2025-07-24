@@ -51,6 +51,7 @@ Optional:
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
+- [wcc](https://github.com/tyfkda/xcc): alternative to clang but lacking goto. run `make wcc`, use `/path/to/wcc -Ilibc/include -Llibc/lib -Wl,--allow-undefined --stack-size=amount` TODO update this after table + attribute fixes (no allow-undefined)
 
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile()
