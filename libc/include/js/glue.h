@@ -3,9 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define WASM_IMPORT(ret, name, ...) \
-    __attribute__((import_module("env"), import_name(#name))) \
-    extern ret name(__VA_ARGS__)
+#include "wasm.h"
 
 /* SYSCALLS(POSIX): */
 typedef long ssize_t;

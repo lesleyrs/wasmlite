@@ -69,7 +69,8 @@ export const glue = {
   JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
     refreshMemory();
-    const pixels32 = u32.subarray(ptr, canvas.width * canvas.height + ptr);
+    const ptr32 = ptr >> 2;
+    const pixels32 = u32.subarray(ptr32, canvas.width * canvas.height + ptr32);
     for (let i = 0; i < pixels32.length; i++) {
       pixels32[i] |= 0xff000000;
     }
@@ -150,30 +151,30 @@ export const glue = {
   JS_addBlurEventListener: (cb) => {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
   },
-  JS_addMouseMoveEventListener: (userData, cb) => {
-    setMouseMoveCB('mousemove', userData, cb);
+  JS_addMouseMoveEventListener: (userdata, cb) => {
+    setMouseMoveCB('mousemove', userdata, cb);
   },
-  JS_addMouseEventListener: (userData, cb) => {
-    setMouseCB('mousedown', userData, cb);
-    setMouseCB('mouseup', userData, cb);
+  JS_addMouseEventListener: (userdata, cb) => {
+    setMouseCB('mousedown', userdata, cb);
+    setMouseCB('mouseup', userdata, cb);
   },
-  JS_addKeyEventListener: (userData, cb) => {
-    setKeyCB('keydown', userData, cb);
-    setKeyCB('keyup', userData, cb);
-  }
-  // JS_addWheelEventListener: (userData, cb) => {
+  JS_addKeyEventListener: (userdata, cb) => {
+    setKeyCB('keydown', userdata, cb);
+    setKeyCB('keyup', userdata, cb);
+  },
+  // JS_addWheelEventListener: (userdata, cb) => {
   // },
 };
 
-function setMouseMoveCB(name, userData, cb) {
+function setMouseMoveCB(name, userdata, cb) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
     // create fresh rect to not worry about resize/scroll/orientationchange/fullscreenchange etc callbacks
     const rect = canvas.getBoundingClientRect();
     let rc;
     if (pointerlock) {
-      rc = exports.__indirect_function_table.get(cb)(userData, e.movementX, e.movementY);
+      rc = exports.__indirect_function_table.get(cb)(userdata, e.movementX, e.movementY);
     } else {
-      rc = exports.__indirect_function_table.get(cb)(userData, e.x - rect.left, e.y - rect.top);
+      rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
     }
     if (rc) {
       e.preventDefault();
@@ -181,19 +182,19 @@ function setMouseMoveCB(name, userData, cb) {
   });
 }
 
-function setMouseCB(name, userData, cb) {
+function setMouseCB(name, userdata, cb) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
-    let rc = exports.__indirect_function_table.get(cb)(userData, e.type === 'mousedown', e.button);
+    let rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'mousedown', e.button);
     if (rc) {
       e.preventDefault();
     }
   });
 }
 
-function setKeyCB(name, userData, cb) {
+function setKeyCB(name, userdata, cb) {
   canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location (unused)
-    const rc = exports.__indirect_function_table.get(cb)(userData, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
+    const rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {
       e.preventDefault();
     }

@@ -1,11 +1,14 @@
 # wasmlite - like emscripten but less magical
 
-This project uses [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resume wasm execution meaning we can often port programs with [little changes](#Ports) outside of platform code, and avoids the need to export functions to JS to call them from there. This requires modern chrome or enable `javascript.options.wasm_js_promise_integration` in firefox.
+This project makes use of [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resume wasm execution which avoids the need to export functions to call them from JS. Combined with [pdclib](https://github.com/lesleyrs/pdclib) allows for porting some desktop programs to run in the browser with [little changes](#Ports).
+
+This requires a modern chrome release or `javascript.options.wasm_js_promise_integration` enabled in firefox.
 
 ## Usage
 ```
 CC = clang --target=wasm32 --sysroot=/path/to/wasm/libc
-LDFLAGS = -nodefaultlibs -lc -lm
+CFLAGS += -fno-builtin # fixes math.h undefined symbols, but also disables other builtins (specific -fno-builtin-X might break as later clang versions have more builtins) TODO a proper libm would fix this, but openlibm gave wrong results.
+LDFLAGS += -nodefaultlibs -lc -lm # avoids system path libclang_rt.builtins-wasm32.a, or `-nostdlib -Dmain=_start -lc -lm` for no crt1 as well
 LDFLAGS += -Wl,--export-table # for function pointers access in JS, such as for event listeners
 LDFLAGS += -Wl,--export=malloc # for JS functions that allocate internally (JS_openFilePicker/glGetString)
 LDFLAGS += -Wl,--stack-first # to fail fast on stack overflow, else it will quietly overwrite data
@@ -40,21 +43,16 @@ llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ```
 after this chrome will automatically load the sourcemap linked in the modified wasm file.
 
-## Dependencies (different licensing)
-- [crt1](./libc/crt1.c): `make crt1`, if you don't need args you can define `-nostdlib -Dmain=_start` instead of -nodefaultlibs
-- [pdclib](https://github.com/lesleyrs/pdclib) stderr is line buffered as opposed to unbuffered since you can't avoid newlines in browser
-- [openlibm](https://github.com/lesleyrs/openlibm) alternative to javascript Math
-
 Optional:
 - bundler/minifier/http server: [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install), npm/node are not needed!
 - emscriptens [wasm-sourcemap.py](https://github.com/emscripten-core/emscripten)
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
-- [wcc](https://github.com/tyfkda/xcc): alternative to clang but lacking goto. run `make wcc`, use `/path/to/wcc -isystem=libc/include -Llibc/lib -Wl,--allow-undefined --stack-size=amount` TODO update this after table + attribute fixes (no allow-undefined)
+- [wcc](https://github.com/tyfkda/xcc): alternative to clang but lacking goto and may have other issues compiling. run `make wcc`, use `/path/to/wcc -isystem=libc/include -Llibc/lib --stack-size=amount` TODO update this after table export/wcc-doomgeneric example
 
 ## Limitations
-- no proper file modes for writing/appending files etc, use JS_saveFile()
+- no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
 - missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
 - Chrome kills fps with dev console open, and has other lag/timing problems (see doom debug build), temp fix: changing compile flags, enabling profiler
