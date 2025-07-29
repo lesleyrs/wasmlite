@@ -49,12 +49,12 @@ Optional:
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
-- [wcc](https://github.com/tyfkda/xcc): alternative to clang but lacking goto and may have other issues compiling. run `make wcc`, use `/path/to/wcc -isystem=libc/include -Llibc/lib --stack-size=amount` TODO update this after table export/wcc-doomgeneric example
+- [wcc](https://github.com/tyfkda/xcc): build with `make wcc`, alternative to clang but lacking goto and may have other issues compiling. use `/path/to/wcc -isystem=/path/to/libc/include -L/path/to/libc/lib -Wl,--export-table --stack-size=amount`.
 
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
-- missing JS apis: audio/websockets/touch/gamepad/webgl/webgpu/webworker etc
+- missing JS apis: audio/touch/gamepad/webgl/webgpu/webworker etc
 - Chrome kills fps with dev console open, and has other lag/timing problems (see doom debug build), temp fix: changing compile flags, enabling profiler
 
 ## Ports
@@ -69,3 +69,5 @@ In some forks the non-wasm targets haven't been kept in a working state, emulato
 These emulators are not so accurate but still serve as examples
 - [gdkGBA](https://github.com/lesleyrs/gdkGBA)
 - [LakeSnes](https://github.com/lesleyrs/LakeSnes)
+- [agnes](https://github.com/lesleyrs/agnes)
+- [Peanut-GB](https://github.com/lesleyrs/Peanut-GB)

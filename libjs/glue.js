@@ -7,8 +7,6 @@ let canvas;
 let ctx;
 /** @type {ImageData} */
 let imageData;
-/** @type {boolean} */
-let pointerlock;
 
 export const glue = {
   // NOTE: temp convenience function while pdclib doesn't support float formatting
@@ -26,11 +24,12 @@ export const glue = {
     a.click();
     URL.revokeObjectURL(url);
   },
-  JS_openFilePicker: new WebAssembly.Suspending(async (lenPtr, namePtr) => {
+  JS_openFilePicker: new WebAssembly.Suspending(async (namePtr, lenPtr, extensions) => {
     const { data, name } = await new Promise((resolve, reject) => {
       canvas.onclick = () => {
         const filepicker = document.createElement('input');
         filepicker.type = 'file';
+        filepicker.accept = ptrToString(extensions);
         filepicker.onchange = e => {
           const file = e.target.files[0];
           const reader = new FileReader();
@@ -54,7 +53,9 @@ export const glue = {
 
     refreshMemory();
     u8.set(new Uint8Array(data), ptr);
-    u32[lenPtr >> 2] = data.byteLength;
+    if (lenPtr) {
+      u32[lenPtr >> 2] = data.byteLength;
+    }
 
     if (namePtr) {
       u8.set(enc, str);
@@ -97,7 +98,7 @@ export const glue = {
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
     canvas.style.touchAction = 'manipulation';
-    canvas.style.imageRendering = 'pixelated'; // TODO only looks good at integer multiples, allow changing it
+    canvas.style.imageRendering = 'pixelated'; // TODO remove this after adding canvas flags as arg
 
     // NOTE: 0 pixel margin at top or not? or better way to do this
     // canvas.style.position = 'absolute';
@@ -116,6 +117,11 @@ export const glue = {
     });
 
     document.addEventListener('keydown', e => {
+      if (e.shiftKey && e.key === "Enter") {
+        canvas.style.imageRendering = (canvas.style.imageRendering === 'pixelated') ? 'auto' : 'pixelated';
+        e.preventDefault();
+        e.stopPropagation();
+      }
       if (e.altKey && e.key === "Enter") {
         if (!document.fullscreenElement) {
           canvas.requestFullscreen();
@@ -138,7 +144,6 @@ export const glue = {
 
   // TODO https://developer.mozilla.org/en-US/docs/Web/Events
   JS_requestPointerLock: () => {
-    pointerlock = true;
     if (!document.pointerLockElement) {
       canvas.requestPointerLock({unadjustedMovement: true});
     }
@@ -171,8 +176,11 @@ function setMouseMoveCB(name, userdata, cb) {
     // create fresh rect to not worry about resize/scroll/orientationchange/fullscreenchange etc callbacks
     const rect = canvas.getBoundingClientRect();
     let rc;
-    if (pointerlock) {
+    if (document.pointerLockElement === canvas) {
       rc = exports.__indirect_function_table.get(cb)(userdata, e.movementX, e.movementY);
+    } else if (document.fullscreenElement) {
+      // TODO fix this with proper canvas offsets
+      rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
     } else {
       rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
     }

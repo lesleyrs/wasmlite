@@ -24,3 +24,5 @@ cp:
 	$(MAKE) -s html > ../forks/LakeSnes/index.html
 	$(MAKE) -s html > ../forks/agbemu/index.html
 	$(MAKE) -s html > ../forks/ntremu/index.html
+	$(MAKE) -s html > ../forks/agnes/examples/index.html
+	$(MAKE) -s html > ../forks/Peanut-GB/examples/sdl2/index.html

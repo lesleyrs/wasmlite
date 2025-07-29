@@ -18,7 +18,7 @@ WASM_IMPORT(_PDCLIB_Noreturn void, _exit, int status) _PDCLIB_NORETURN;
 WASM_IMPORT(void, JS_logFloat, float); /* printf doesn't support float formatting for now */
 WASM_IMPORT(void, JS_alert, const char* msg);
 WASM_IMPORT(void, JS_saveFile, const char* name, uint8_t *buf, int len);
-WASM_IMPORT(uint8_t*, JS_openFilePicker, int* len, char** str); /* requires -Wl,--export=malloc, you have to free both buf + str */
+WASM_IMPORT(uint8_t*, JS_openFilePicker, char** filename, size_t* len, const char* extensions); /* requires -Wl,--export=malloc, you have to free both buffer + filename, pass comma separated extensions or NULL */
 
 /* INIT: */
 WASM_IMPORT(void, JS_setTitle, const char *title);
