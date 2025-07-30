@@ -81,10 +81,11 @@ export function read(fd, buf, count) {
 }
 
 export const open = new WebAssembly.Suspending(async function(pathPtr, flags, mode) {
-  const path = typeof BUNDLER !== 'undefined' ? ptrToString(pathPtr) : `ports/${ptrToString(pathPtr)}`
+  const path = ptrToString(pathPtr);
+  const url = (typeof BUNDLER !== 'undefined' || path.startsWith('http')) ? path : `ports/${path}`;
   try {
-    // const response = await fetch(path, { cache: 'no-cache' });
-    const response = await fetch(path, { cache: 'no-store' });
+    // const response = await fetch(url, { cache: 'no-cache' });
+    const response = await fetch(url, { cache: 'no-store' });
     console.log(response);
     if (!response.ok) return -1;
     const buffer = new Uint8Array(await response.arrayBuffer());
