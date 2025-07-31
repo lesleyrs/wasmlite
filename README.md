@@ -63,11 +63,11 @@ In some forks the non-wasm targets haven't been kept in a working state, emulato
 - [PL3D-KC](https://github.com/lesleyrs/PL3D-KC)
 - [doomgeneric](https://github.com/lesleyrs/doomgeneric)
 - [quakegeneric](https://github.com/lesleyrs/quakegeneric)
+- [agnes](https://github.com/lesleyrs/agnes)
+- [Peanut-GB](https://github.com/lesleyrs/Peanut-GB)
 - [agbemu](https://github.com/lesleyrs/agbemu)
 - [ntremu](https://github.com/lesleyrs/ntremu) - only runs decrypted roms, need to provide firmware.bin or touch won't work
 
 These emulators are not so accurate but still serve as examples
 - [gdkGBA](https://github.com/lesleyrs/gdkGBA)
 - [LakeSnes](https://github.com/lesleyrs/LakeSnes)
-- [agnes](https://github.com/lesleyrs/agnes)
-- [Peanut-GB](https://github.com/lesleyrs/Peanut-GB)
