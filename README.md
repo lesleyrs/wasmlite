@@ -64,7 +64,7 @@ In some forks the non-wasm targets haven't been kept in a working state, emulato
 - [doomgeneric](https://github.com/lesleyrs/doomgeneric)
 - [quakegeneric](https://github.com/lesleyrs/quakegeneric)
 - [agbemu](https://github.com/lesleyrs/agbemu)
-- [ntremu](https://github.com/lesleyrs/ntremu) - seems to only run decrypted roms, need to provide firmware.bin or touch won't work
+- [ntremu](https://github.com/lesleyrs/ntremu) - only runs decrypted roms, need to provide firmware.bin or touch won't work
 
 These emulators are not so accurate but still serve as examples
 - [gdkGBA](https://github.com/lesleyrs/gdkGBA)
