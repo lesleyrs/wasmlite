@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "wasm.h"
+#include "dom_pk_codes.h"
 
 /* SYSCALLS(POSIX): */
 typedef long ssize_t;
