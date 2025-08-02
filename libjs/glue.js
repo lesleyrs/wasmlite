@@ -137,6 +137,7 @@ export const glue = {
   JS_setFont: (font) => ctx.font = ptrToString(font),
   JS_measureTextWidth: (text) => ctx.measureText(ptrToString(text)).width,
   JS_fillStyle: (color) => ctx.fillStyle = ptrToString(color),
+  // TODO why do the fonts look so blurry/pixelated
   JS_fillText: (str, x, y) => ctx.fillText(ptrToString(str), x, y),
   JS_fillRect: (x, y, w, h) => ctx.fillRect(x, y, w, h),
   JS_strokeStyle: (color) => ctx.strokeStyle = ptrToString(color),
@@ -153,15 +154,13 @@ export const glue = {
         exports.__indirect_function_table.get(cb)(!!document.pointerLockElement);
     })
   },
-  JS_addBlurEventListener: (cb) => {
-    canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)());
+  JS_addBlurEventListener: (userdata, cb) => {
+    canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)(userdata));
   },
-  JS_addMouseMoveEventListener: (userdata, cb) => {
-    setMouseMoveCB('mousemove', userdata, cb);
-  },
-  JS_addMouseEventListener: (userdata, cb) => {
-    setMouseCB('mousedown', userdata, cb);
-    setMouseCB('mouseup', userdata, cb);
+  JS_addMouseEventListener: (userdata, cb, cb2) => {
+    setMouseCB('mousedown', userdata, cb, cb2);
+    setMouseCB('mouseup', userdata, cb, cb2);
+    setMouseMoveCB('mousemove', userdata, cb2);
   },
   JS_addKeyEventListener: (userdata, cb) => {
     setKeyCB('keydown', userdata, cb);
@@ -171,28 +170,49 @@ export const glue = {
   // },
 };
 
-function setMouseMoveCB(name, userdata, cb) {
-  canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
-    // create fresh rect to not worry about resize/scroll/orientationchange/fullscreenchange etc callbacks
-    const rect = canvas.getBoundingClientRect();
+function handleMouseMove(e, userdata, cb) {
     let rc;
     if (document.pointerLockElement === canvas) {
       rc = exports.__indirect_function_table.get(cb)(userdata, e.movementX, e.movementY);
     } else if (document.fullscreenElement) {
-      // TODO fix this with proper canvas offsets
-      rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
+      const aspectCanvas = canvas.width / canvas.height;
+      const aspectScreen = window.innerWidth / window.innerHeight;
+      let displayWidth, displayHeight, offsetX = 0, offsetY = 0;
+
+      if (aspectCanvas > aspectScreen) {
+        displayWidth = window.innerWidth;
+        displayHeight = window.innerWidth / aspectCanvas;
+        offsetY = (window.innerHeight - displayHeight) / 2;
+      } else {
+        displayHeight = window.innerHeight;
+        displayWidth = window.innerHeight * aspectCanvas;
+        offsetX = (window.innerWidth - displayWidth) / 2;
+      }
+      // only need to calc 1 scale unless aspect ratio is sometimes not retained?
+      const scaleX = canvas.width / displayWidth;
+      const scaleY = canvas.height / displayHeight;
+      rc = exports.__indirect_function_table.get(cb)(userdata, (e.x - offsetX) * scaleX, (e.y - offsetY) * scaleY);
     } else {
+      // create fresh rect to not deal with resize/scroll/orientationchange etc callbacks
+      const rect = canvas.getBoundingClientRect();
       rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
     }
+    return rc;
+}
+
+function setMouseMoveCB(name, userdata, cb) {
+  canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
+    const rc = handleMouseMove(e, userdata, cb);
     if (rc) {
       e.preventDefault();
     }
   });
 }
 
-function setMouseCB(name, userdata, cb) {
+function setMouseCB(name, userdata, cb, cb2) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
-    let rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'mousedown', e.button);
+    handleMouseMove(e, userdata, cb2); // clicks call mousemove to update pos after resizes etc TODO avoid unneeded calls
+    const rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'mousedown', e.button);
     if (rc) {
       e.preventDefault();
     }
