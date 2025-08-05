@@ -86,6 +86,7 @@ export const glue = {
     ctx.putImageData(imageData, 0, 0);
   },
   JS_setTitle: (title) => { document.title = ptrToString(title) },
+  // TODO maybe set event listeners directly in createcanvas?
   JS_createCanvas: (width, height) => {
     canvas = document.createElement('canvas');
     // const canvas = document.getElementById('canvas');
