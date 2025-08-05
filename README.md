@@ -21,6 +21,8 @@ To have clangd work create a compile_flags.txt file with the same flags as CC
 1. run `make html > /path/to/project/index.html` (or `make js`) to bundle/minify libjs
 2. run a http server `esbuild --servedir=.` and pass program name + args similar to CLI `/?program&arg 1&arg 2` in the url.
 
+Builtin key shortcuts are alt+enter for fullscreen toggle, shift+enter for image scaling toggle
+
 ## Porting C programs
 1. add wasm platform to the codebase or just replace SDL, use `#include <js/glue.h>` to have access to JS functions
 3. pdclib doesn't implement posix, see [musl](https://git.musl-libc.org/cgit/musl/tree/src) for implementations
