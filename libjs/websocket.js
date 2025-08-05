@@ -81,6 +81,7 @@ export const websocket = {
       }
     });
   })),
+  // NOTE separate func from close() to keep websockets standalone
   closesocket: (fd) => {
     sockets.get(fd).close();
   },
