@@ -6,15 +6,6 @@
 #include "wasm.h"
 #include "dom_pk_codes.h"
 
-/* SYSCALLS(POSIX): */
-typedef long ssize_t;
-WASM_IMPORT(ssize_t, read, (int fd, void* buf, size_t count));
-WASM_IMPORT(ssize_t, write, (int fd, const void* buf, size_t count));
-WASM_IMPORT(ssize_t, open, (const char*, unsigned int mode, ...));
-WASM_IMPORT(int, close, (int fd));
-WASM_IMPORT(int64_t, lseek64, (int fd, _PDCLIB_int_least64_t offset, int whence));
-WASM_IMPORT(_PDCLIB_Noreturn void, _exit, (int status)) _PDCLIB_NORETURN;
-
 /* UTIL: */
 WASM_IMPORT(void, JS_logFloat, (float)); /* printf doesn't support float formatting for now */
 WASM_IMPORT(void, JS_alert, (const char* msg));

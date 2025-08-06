@@ -2,6 +2,7 @@ import * as syscalls from './syscalls.js'
 import { glue } from './glue.js'
 import { math } from './math.js'
 import { websocket } from './websocket.js'
+import { audio } from './audio.js'
 
 const params = new URLSearchParams(location.search);
 export const args = [];
@@ -10,7 +11,7 @@ for (const key of params.keys()) {
 }
 console.log(args);
 
-const { instance } = await WebAssembly.instantiateStreaming(fetch(`${args[0]}.wasm`), { env: { ...syscalls, ...glue, ...math, ...websocket, } });
+const { instance } = await WebAssembly.instantiateStreaming(fetch(`${args[0]}.wasm`), { env: { ...syscalls, ...glue, ...math, ...websocket, ...audio } });
 export const exports = instance.exports;
 console.log(exports);
 
