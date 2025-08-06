@@ -57,8 +57,7 @@ Optional:
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
 - missing JS apis: audio/touch/gamepad/webgl/webgpu/webworker etc
-- Chrome kills fps with dev console open, and has other lag/timing problems (see doom debug build), temp fix: changing compile flags, enabling profiler
-- Inactive tabs will always pause wasm execution, TODO might be fixed by setting a main loop for setTimeout rather than calling it in a wasm loop
+- Chrome runs like crap with dev console open, Firefox can't load dwarf wasm sourcemaps
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, emulators don't support saves load/download yet
