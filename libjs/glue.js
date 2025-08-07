@@ -188,7 +188,7 @@ function setWheelCB(name, userdata, cb) {
         delta *= 80;
         break;
     }
-    const rc = exports.__indirect_function_table.get(cb)(userdata, delta);
+    const rc = exports.__indirect_function_table.get(cb)(userdata, -delta);
     if (rc) {
       e.preventDefault();
     }
