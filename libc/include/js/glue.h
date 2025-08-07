@@ -17,7 +17,7 @@ WASM_IMPORT(void, JS_setTitle, (const char *title));
 WASM_IMPORT(void, JS_createCanvas, (int width, int height));
 
 /* TIMING: */
-WASM_IMPORT(void, JS_setTimeout, (float ms));
+WASM_IMPORT(void, JS_setTimeout, (int ms));
 WASM_IMPORT(void, JS_requestAnimationFrame, (void));
 
 WASM_IMPORT(double, JS_DateNow, (void));
@@ -28,12 +28,12 @@ WASM_IMPORT(void, JS_setPixels, (uint32_t *pixels));
 WASM_IMPORT(void, JS_setPixelsAlpha, (uint32_t *pixels));
 
 WASM_IMPORT(void, JS_setFont, (const char *font));
-WASM_IMPORT(int, JS_measureTextWidth, (const char *text));
+WASM_IMPORT(double, JS_measureTextWidth, (const char *text));
 WASM_IMPORT(void, JS_fillStyle, (const char *color));
-WASM_IMPORT(void, JS_fillText, (const char *str, int x, int y));
-WASM_IMPORT(void, JS_fillRect, (int x, int y, int w, int h));
+WASM_IMPORT(void, JS_fillText, (const char *str, double x, double y));
+WASM_IMPORT(void, JS_fillRect, (double x, double y, double w, double h));
 WASM_IMPORT(void, JS_strokeStyle, (const char *color));
-WASM_IMPORT(void, JS_strokeRect, (int x, int y, int w, int h));
+WASM_IMPORT(void, JS_strokeRect, (double x, double y, double w, double h));
 
 /* EVENTS: return 1 inside the callbacks to call preventDefault() */
 #define KMOD_CTRL (1 << 0)
@@ -45,17 +45,16 @@ WASM_IMPORT(void, JS_strokeRect, (int x, int y, int w, int h));
 #define MBTN_MIDDLE 1
 #define MBTN_RIGHT 2
 
-typedef bool (*JS_KeyCallback)(void *userData, bool pressed, int key, int code, int modifiers);
-typedef bool (*JS_MouseMoveCallback)(void *userData, int x, int y);
-typedef bool (*JS_MouseCallback)(void *userData, bool pressed, int button);
-/* typedef bool (*JS_WheelCallback)(void* userData, TODO); */
+typedef bool (*JS_KeyCallback)(void *userdata, bool pressed, int key, int code, int modifiers);
+typedef bool (*JS_MouseMoveCallback)(void *userdata, int x, int y);
+typedef bool (*JS_MouseCallback)(void *userdata, bool pressed, int button);
+typedef bool (*JS_WheelCallback)(void* userdata, double delta);
 /* TODO: add focus event? */
 
 WASM_IMPORT(void, JS_requestPointerLock, (void));
 WASM_IMPORT(void, JS_addPointerLockChangeEventListener, (void (*cb)(bool locked)));
 /* visibilitychange didn't run on alt-tab so we use blur to release keys for example */
-WASM_IMPORT(void, JS_addBlurEventListener, (void *userData, void (*cb)(void *userData)));
-WASM_IMPORT(void, JS_addKeyEventListener, (void *userData, JS_KeyCallback));
+WASM_IMPORT(void, JS_addBlurEventListener, (void *userdata, void (*cb)(void *userdata)));
+WASM_IMPORT(void, JS_addKeyEventListener, (void *userdata, JS_KeyCallback));
 /* pointerup didn't release mouse buttons if multiple were pressed at once so we use mouse events */
-WASM_IMPORT(void, JS_addMouseEventListener, (void *userData, JS_MouseCallback, JS_MouseMoveCallback));
-/* WASM_IMPORT(void, JS_addWheelEventListener, (void* userData, JS_WheelCallback)); */
+WASM_IMPORT(void, JS_addMouseEventListener, (void *userdata, JS_MouseCallback, JS_MouseMoveCallback, JS_WheelCallback));

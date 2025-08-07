@@ -86,7 +86,6 @@ export const glue = {
     ctx.putImageData(imageData, 0, 0);
   },
   JS_setTitle: (title) => { document.title = ptrToString(title) },
-  // TODO maybe set event listeners directly in createcanvas?
   JS_createCanvas: (width, height) => {
     canvas = document.createElement('canvas');
     // const canvas = document.getElementById('canvas');
@@ -144,7 +143,6 @@ export const glue = {
   JS_strokeStyle: (color) => ctx.strokeStyle = ptrToString(color),
   JS_strokeRect: (x, y, w, h) => ctx.strokeRect(x, y, w, h),
 
-  // TODO https://developer.mozilla.org/en-US/docs/Web/Events
   JS_requestPointerLock: () => {
     if (!document.pointerLockElement) {
       canvas.requestPointerLock({unadjustedMovement: true});
@@ -158,18 +156,44 @@ export const glue = {
   JS_addBlurEventListener: (userdata, cb) => {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)(userdata));
   },
-  JS_addMouseEventListener: (userdata, cb, cb2) => {
-    setMouseCB('mousedown', userdata, cb, cb2);
-    setMouseCB('mouseup', userdata, cb, cb2);
-    setMouseMoveCB('mousemove', userdata, cb2);
+  JS_addMouseEventListener: (userdata, cb, cb2, cb3) => {
+    if (cb && cb2) {
+      setMouseCB('mousedown', userdata, cb, cb2);
+      setMouseCB('mouseup', userdata, cb, cb2);
+    }
+    if (cb2) {
+      setMouseMoveCB('mousemove', userdata, cb2);
+    }
+    if (cb3) {
+      setWheelCB('wheel', userdata, cb3);
+    }
   },
   JS_addKeyEventListener: (userdata, cb) => {
     setKeyCB('keydown', userdata, cb);
     setKeyCB('keyup', userdata, cb);
   },
-  // JS_addWheelEventListener: (userdata, cb) => {
-  // },
 };
+
+function setWheelCB(name, userdata, cb) {
+  canvas.addEventListener(name, /** @param {WheelEvent} e */ e => {
+    let delta = e.deltaY;
+    switch (e.deltaMode) {
+      case e.DOM_DELTA_PIXEL: // 100 pixels make up a step
+        delta /= 100;
+        break;
+      case e.DOM_DELTA_LINE: // 3 lines make up a step
+        delta /= 3;
+        break;
+      case e.DOM_DELTA_PAGE: // A page makes up 80 steps
+        delta *= 80;
+        break;
+    }
+    const rc = exports.__indirect_function_table.get(cb)(userdata, delta);
+    if (rc) {
+      e.preventDefault();
+    }
+  });
+}
 
 function handleMouseMove(e, userdata, cb) {
     let rc;
