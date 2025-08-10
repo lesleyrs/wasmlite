@@ -1,6 +1,9 @@
 #pragma once
 #include "wasm.h"
 
+WASM_IMPORT(int, isinf, (double));
+WASM_IMPORT(int, isnan, (double));
+
 WASM_IMPORT(double, acos, (double));
 WASM_IMPORT(double, acosh, (double));
 WASM_IMPORT(double, asin, (double));
@@ -28,7 +31,7 @@ WASM_IMPORT(double, fmod, (double, double));
 // double frexp(double, int *);
 WASM_IMPORT(double, hypot, (double, double));
 // int ilogb(double);
-// double ldexp(double, int);
+WASM_IMPORT(double, ldexp, (double, int));
 // double lgamma(double);
 // long long llrint(double);
 // long long llround(double);

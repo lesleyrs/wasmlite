@@ -3,8 +3,10 @@ import { ptrToString } from './utils.js'
 
 /** @type {HTMLCanvasElement} */
 let canvas;
-/** @type {CanvasRenderingContext2D} */
-let ctx;
+// NOTE: lsp only works well with 1 type at a time for showing docs
+/** @type {CanvasRenderingContext2D | WebGLRenderingContext  | WebGL2RenderingContext | GPUCanvasContext | ImageBitmapRenderingContext} */
+/** @type {WebGL2RenderingContext} */
+export let ctx;
 /** @type {ImageData} */
 let imageData;
 
@@ -86,7 +88,7 @@ export const glue = {
     ctx.putImageData(imageData, 0, 0);
   },
   JS_setTitle: (title) => { document.title = ptrToString(title) },
-  JS_createCanvas: (width, height) => {
+  JS_createCanvas: (width, height, context) => {
     canvas = document.createElement('canvas');
     // const canvas = document.getElementById('canvas');
     // canvas.id = 'canvas';
@@ -107,8 +109,15 @@ export const glue = {
     // canvas.style.transform = 'translate(-50%, 0)';
 
     document.body.appendChild(canvas);
-    ctx = canvas.getContext('2d', { alpha: false });
-    imageData = ctx.createImageData(canvas.width, canvas.height);
+    const ctxString = ptrToString(context);
+    ctx = canvas.getContext(ctxString, { alpha: false });
+    if (!ctx) {
+      throw new Error(`${ctxString} not supported`);
+    }
+
+    if (ctxString === '2d') {
+      imageData = ctx.createImageData(canvas.width, canvas.height);
+    }
 
     canvas.addEventListener('touchstart', () => {
       if (!document.fullscreenElement) {

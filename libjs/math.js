@@ -1,5 +1,7 @@
 export const math = {
+  // TODO check if these are correct
   isnan: (x) => Number.isNaN(x),
+  isinf: (x) => x === Infinity || x === -Infinity,
 
   acos: Math.acos,
   acosh: Math.acosh,
@@ -34,7 +36,7 @@ export const math = {
   // frexp:,
   hypot: Math.hypot,
   // ilogb:,
-  // ldexp:,
+  ldexp: (x, exp) => x * Math.pow(2, exp),
   // lgamma:,
   // llrint:,
   // llround:,

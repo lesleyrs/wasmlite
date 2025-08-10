@@ -14,7 +14,7 @@ WASM_IMPORT(uint8_t*, JS_openFilePicker, (char** filename, size_t* len, const ch
 
 /* INIT: */
 WASM_IMPORT(void, JS_setTitle, (const char *title));
-WASM_IMPORT(void, JS_createCanvas, (int width, int height));
+WASM_IMPORT(void, JS_createCanvas, (int width, int height, const char* context));
 
 /* TIMING: */
 WASM_IMPORT(void, JS_setTimeout, (int ms));

@@ -26,3 +26,4 @@ cp:
 	$(MAKE) -s html > ../forks/ntremu/index.html
 	$(MAKE) -s html > ../forks/agnes/examples/index.html
 	$(MAKE) -s html > ../forks/Peanut-GB/examples/sdl2/index.html
+	$(MAKE) -s html > ../forks/minecraft-weekend/index.html
