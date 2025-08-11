@@ -87,15 +87,15 @@ export const webgl2 = {
     }
   },
   glBindVertexArray: (id) => {
-    if (id === 0) {
-      gl.bindVertexArray(null);
-    } else {
+    if (id) {
       const vao = VAOs.get(id);
       if (!vao) {
         console.warn(`Invalid VAO id: ${id}`);
         return;
       }
       gl.bindVertexArray(vao);
+    } else {
+      gl.bindVertexArray(null);
     }
   },
   glGenBuffers: (n, ptr) => {
@@ -107,24 +107,24 @@ export const webgl2 = {
     }
   },
   glBindBuffer: (target, id) => {
-    if (id === 0) {
-      gl.bindBuffer(target, null);
-    } else {
+    if (id) {
       const buffer = VBOs.get(id);
       if (!buffer) {
         console.warn(`Invalid VBO id: ${id}`);
         return;
       }
       gl.bindBuffer(target, buffer);
+    } else {
+      gl.bindBuffer(target, null);
     }
   },
   glBufferData: (target, size, ptr, usage) => {
-    if (ptr === 0) {
-      gl.bufferData(target, size, usage);
-    } else {
+    if (ptr) {
       refreshMemory();
       const data = u8.subarray(ptr, ptr + size);
       gl.bufferData(target, data, usage);
+    } else {
+      gl.bufferData(target, size, null);
     }
   },
   glGetAttribLocation: (id, ptr) => {
@@ -229,12 +229,12 @@ export const webgl2 = {
   glBindTexture: (target, id) => gl.bindTexture(target, textures.get(id)),
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
-    if (pixelsPtr === 0) {
-      gl.texImage2D(target, level, internalformat, width, height, border, format, type, null)
-    } else {
+    if (pixelsPtr) {
       refreshMemory();
       const pixels = u8.subarray(pixelsPtr, pixelsPtr + width * height * 4);
-      gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels)
+      gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+    } else {
+      gl.texImage2D(target, level, internalformat, width, height, border, format, type, null);
     }
   },
   glDeleteTextures: (n, ptr) => {
@@ -265,4 +265,5 @@ export const webgl2 = {
     }
   },
   glDepthMask: (flag) => gl.depthMask(flag),
+  glGenerateMipmap: (target) => gl.generateMipmap(target),
 };

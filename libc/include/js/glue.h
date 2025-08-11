@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "wasm.h"
-#include "dom_pk_codes.h"
 
 /* UTIL: */
 WASM_IMPORT(void, JS_logFloat, (float)); /* printf doesn't support float formatting for now */
