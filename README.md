@@ -56,7 +56,7 @@ Optional:
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
 - pdclib can't format floats yet causing issues with EG quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
-- missing JS apis: audio/webgl/webgpu/webworker + some events: touch/gamepad etc https://developer.mozilla.org/en-US/docs/Web/Events
+- missing JS apis: audio/webgpu/webworker + some events: touch/gamepad etc https://developer.mozilla.org/en-US/docs/Web/Events
 
 - Chrome runs like crap with dev console open, Firefox can't load dwarf wasm sourcemaps
 
