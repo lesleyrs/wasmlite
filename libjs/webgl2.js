@@ -7,13 +7,13 @@ const shaders = new Map();
 const programs = new Map();
 const VAOs = new Map();
 const VBOs = new Map();
+/** @type {Map<number, {id: number, name: string, location: WebGLUniformLocation}>} */
 const uniforms = new Map();
 const textures = new Map();
 const framebuffers = new Map();
 
-// TODO test webgl1
 // TODO consistent naming for args use Ptr suffix and maybe change global map names?
-// TODO check return values + improve nextId usage (glGetUniformLocation) to not get Map maximum size exceeded
+// TODO check return values + improve nextId usage, add missing gl funcs
 export const webgl2 = {
   glGetString: (name) => {
     const str = gl.getParameter(name);
@@ -94,14 +94,14 @@ export const webgl2 = {
   glGenBuffers: (n, ptr) => {
     refreshMemory();
     for (let i = 0; i < n; i++) {
-      const buffer = gl.createBuffer();
-      VBOs.set(nextId, buffer);
+      const vbo = gl.createBuffer();
+      VBOs.set(nextId, vbo);
       u32[(ptr >> 2) + i] = nextId++;
     }
   },
   glBindBuffer: (target, id) => {
-    const buffer = VBOs.get(id) || null;
-    gl.bindBuffer(target, buffer);
+    const vbo = VBOs.get(id) || null;
+    gl.bindBuffer(target, vbo);
   },
   glBufferData: (target, size, ptr, usage) => {
     if (ptr) {
@@ -170,34 +170,40 @@ export const webgl2 = {
     gl.deleteShader(program);
     shaders.delete(id);
   },
-  glGetUniformLocation: (id, name) => {
+  glGetUniformLocation: (id, ptr) => {
     const program = programs.get(id) || null;
-    const location = gl.getUniformLocation(program, ptrToString(name));
-    uniforms.set(nextId, location);
+    const name = ptrToString(ptr);
+
+    for (const [uid, loc] of uniforms) {
+      if (loc.id === id && loc.name === name) return uid;
+    }
+
+    const location = gl.getUniformLocation(program, name);
+    uniforms.set(nextId, { id, name, location });
     return nextId++;
   },
   glUniformMatrix4fv: (id, count, transpose, value) => {
     refreshMemory();
-    const location = uniforms.get(id) || null;
+    const uniform = uniforms.get(id) || null;
     const floatValues = new Float32Array(memory.buffer, value, count * 16); // TODO f32 in loader?
-    gl.uniformMatrix4fv(location, transpose, floatValues);
+    gl.uniformMatrix4fv(uniform.location, transpose, floatValues);
   },
   glActiveTexture: (texture) => gl.activeTexture(texture),
   glUniform1i: (id, v0) => {
-    const location = uniforms.get(id) || null;
-    gl.uniform1i(location, v0);
+    const uniform = uniforms.get(id) || null;
+    gl.uniform1i(uniform.location, v0);
   },
   glUniform1f: (id, v0) => {
-    const location = uniforms.get(id) || null;
-    gl.uniform1f(location, v0);
+    const uniform = uniforms.get(id) || null;
+    gl.uniform1f(uniform.location, v0);
   },
   glUniform2f: (id, v0, v1) => {
-    const location = uniforms.get(id) || null;
-    gl.uniform2f(location, v0, v1);
+    const uniform = uniforms.get(id) || null;
+    gl.uniform2f(uniform.location, v0, v1);
   },
   glUniform4f: (id, v0, v1, v2, v3) => {
-    const location = uniforms.get(id) || null;
-    gl.uniform4f(location, v0, v1, v2, v3);
+    const uniform = uniforms.get(id) || null;
+    gl.uniform4f(uniform.location, v0, v1, v2, v3);
   },
   glGenTextures: (n, ptr) => {
     refreshMemory();
@@ -249,8 +255,8 @@ export const webgl2 = {
   glDepthMask: (flag) => gl.depthMask(flag),
   glGenerateMipmap: (target) => gl.generateMipmap(target),
   glBindBufferBase: (target, index, id) => {
-    const buffer = VBOs.get(id) || null;
-    gl.bindBufferBase(target, index, buffer);
+    const vbo = VBOs.get(id) || null;
+    gl.bindBufferBase(target, index, vbo);
   },
   glGenFramebuffers: (n, ptr) => {
     refreshMemory();
