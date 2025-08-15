@@ -2,7 +2,7 @@
 
 This project makes use of [JSPI](https://v8.dev/blog/jspi) which is able to suspend/resume wasm execution which avoids the need to export functions to call them from JS. Combined with [pdclib](https://github.com/lesleyrs/pdclib) allows for porting some desktop programs to run in the browser with [little changes](#Ports).
 
-This requires a modern chrome release or `javascript.options.wasm_js_promise_integration` enabled in firefox.
+This requires a modern chrome version or `javascript.options.wasm_js_promise_integration` enabled in firefox.
 
 ## Usage
 ```
@@ -55,9 +55,9 @@ Optional:
 
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
-- pdclib can't format floats yet causing issues with EG printing fps and quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
-- missing JS apis: audio/webgpu/webworker + some events: touch/gamepad etc https://developer.mozilla.org/en-US/docs/Web/Events
-- Chrome runs like crap with dev console open, Firefox can't fully make use of the wasm sourcemaps
+- Chrome performance drops with dev console open, Firefox can't fully make use of the wasm sourcemaps
+- TODO: audio/webgpu/webworker + some events: touch/gamepad etc https://developer.mozilla.org/en-US/docs/Web/Events
+- WIP: webgl2, pdclib can't format floats yet causing issues with EG printing fps and quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, and most programs don't support saves load/download yet

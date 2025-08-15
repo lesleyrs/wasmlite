@@ -1,3 +1,6 @@
+/* https://registry.khronos.org/webgl/specs/latest/1.0/ */
+/* https://registry.khronos.org/webgl/specs/latest/2.0/ */
+
 #pragma once
 
 #include "wasm.h"
@@ -419,7 +422,7 @@ WASM_IMPORT(void, glGetShaderiv, (GLuint shader, GLenum pname, GLint *params));
 WASM_IMPORT(void, glGetShaderInfoLog, (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog));
 WASM_IMPORT(void, glGetShaderPrecisionFormat, (GLenum shadertype, GLenum precisiontype, GLint *range, GLint *precision));
 WASM_IMPORT(void, glGetShaderSource, (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *source));
-WASM_IMPORT(const, GLubyte, *glGetString (GLenum name));
+WASM_IMPORT(const GLubyte*, glGetString, (GLenum name));
 WASM_IMPORT(void, glGetTexParameterfv, (GLenum target, GLenum pname, GLfloat *params));
 WASM_IMPORT(void, glGetTexParameteriv, (GLenum target, GLenum pname, GLint *params));
 WASM_IMPORT(void, glGetUniformfv, (GLuint program, GLint location, GLfloat *params));
@@ -445,7 +448,7 @@ WASM_IMPORT(void, glReleaseShaderCompiler, (void));
 WASM_IMPORT(void, glRenderbufferStorage, (GLenum target, GLenum internalformat, GLsizei width, GLsizei height));
 WASM_IMPORT(void, glSampleCoverage, (GLfloat value, GLboolean invert));
 WASM_IMPORT(void, glScissor, (GLint x, GLint y, GLsizei width, GLsizei height));
-WASM_IMPORT(void, glShaderBinary, (GLsizei count, const GLuint *shaders, GLenum binaryFormat, const void *binary, GLsizei length));
+// WASM_IMPORT(void, glShaderBinary, (GLsizei count, const GLuint *shaders, GLenum binaryFormat, const void *binary, GLsizei length));
 WASM_IMPORT(void, glShaderSource, (GLuint shader, GLsizei count, const GLchar *const*string, const GLint *length));
 WASM_IMPORT(void, glStencilFunc, (GLenum func, GLint ref, GLuint mask));
 WASM_IMPORT(void, glStencilFuncSeparate, (GLenum face, GLenum func, GLint ref, GLuint mask));
@@ -636,9 +639,9 @@ typedef khronos_uint16_t GLhalf;
 #define GL_UNSIGNED_INT_SAMPLER_3D        0x8DD3
 #define GL_UNSIGNED_INT_SAMPLER_CUBE      0x8DD4
 #define GL_UNSIGNED_INT_SAMPLER_2D_ARRAY  0x8DD7
-#define GL_BUFFER_ACCESS_FLAGS            0x911F
-#define GL_BUFFER_MAP_LENGTH              0x9120
-#define GL_BUFFER_MAP_OFFSET              0x9121
+// #define GL_BUFFER_ACCESS_FLAGS            0x911F
+// #define GL_BUFFER_MAP_LENGTH              0x9120
+// #define GL_BUFFER_MAP_OFFSET              0x9121
 #define GL_DEPTH_COMPONENT32F             0x8CAC
 #define GL_DEPTH32F_STENCIL8              0x8CAD
 #define GL_FLOAT_32_UNSIGNED_INT_24_8_REV 0x8DAD
@@ -698,12 +701,12 @@ typedef khronos_uint16_t GLhalf;
 #define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE 0x8D56
 #define GL_MAX_SAMPLES                    0x8D57
 #define GL_HALF_FLOAT                     0x140B
-#define GL_MAP_READ_BIT                   0x0001
-#define GL_MAP_WRITE_BIT                  0x0002
-#define GL_MAP_INVALIDATE_RANGE_BIT       0x0004
-#define GL_MAP_INVALIDATE_BUFFER_BIT      0x0008
-#define GL_MAP_FLUSH_EXPLICIT_BIT         0x0010
-#define GL_MAP_UNSYNCHRONIZED_BIT         0x0020
+// #define GL_MAP_READ_BIT                   0x0001
+// #define GL_MAP_WRITE_BIT                  0x0002
+// #define GL_MAP_INVALIDATE_RANGE_BIT       0x0004
+// #define GL_MAP_INVALIDATE_BUFFER_BIT      0x0008
+// #define GL_MAP_FLUSH_EXPLICIT_BIT         0x0010
+// #define GL_MAP_UNSYNCHRONIZED_BIT         0x0020
 #define GL_RG                             0x8227
 #define GL_RG_INTEGER                     0x8228
 #define GL_R8                             0x8229
@@ -781,16 +784,16 @@ typedef khronos_uint16_t GLhalf;
 #define GL_CONDITION_SATISFIED            0x911C
 #define GL_WAIT_FAILED                    0x911D
 #define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
-#define GL_TIMEOUT_IGNORED                0xFFFFFFFFFFFFFFFFull
+#define GL_TIMEOUT_IGNORED                0xFFFFFFFFFFFFFFFFll
 #define GL_VERTEX_ATTRIB_ARRAY_DIVISOR    0x88FE
 #define GL_ANY_SAMPLES_PASSED             0x8C2F
 #define GL_ANY_SAMPLES_PASSED_CONSERVATIVE 0x8D6A
 #define GL_SAMPLER_BINDING                0x8919
 #define GL_RGB10_A2UI                     0x906F
-#define GL_TEXTURE_SWIZZLE_R              0x8E42
-#define GL_TEXTURE_SWIZZLE_G              0x8E43
-#define GL_TEXTURE_SWIZZLE_B              0x8E44
-#define GL_TEXTURE_SWIZZLE_A              0x8E45
+// #define GL_TEXTURE_SWIZZLE_R              0x8E42
+// #define GL_TEXTURE_SWIZZLE_G              0x8E43
+// #define GL_TEXTURE_SWIZZLE_B              0x8E44
+// #define GL_TEXTURE_SWIZZLE_A              0x8E45
 #define GL_GREEN                          0x1904
 #define GL_BLUE                           0x1905
 #define GL_INT_2_10_10_10_REV             0x8D9F
@@ -830,7 +833,7 @@ WASM_IMPORT(void, glBeginQuery, (GLenum target, GLuint id));
 WASM_IMPORT(void, glEndQuery, (GLenum target));
 WASM_IMPORT(void, glGetQueryiv, (GLenum target, GLenum pname, GLint *params));
 WASM_IMPORT(void, glGetQueryObjectuiv, (GLuint id, GLenum pname, GLuint *params));
-WASM_IMPORT(GLboolean, glUnmapBuffer, (GLenum target));
+// WASM_IMPORT(GLboolean, glUnmapBuffer, (GLenum target));
 WASM_IMPORT(void, glGetBufferPointerv, (GLenum target, GLenum pname, void **params));
 WASM_IMPORT(void, glDrawBuffers, (GLsizei n, const GLenum *bufs));
 WASM_IMPORT(void, glUniformMatrix2x3fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value));
@@ -842,8 +845,8 @@ WASM_IMPORT(void, glUniformMatrix4x3fv, (GLint location, GLsizei count, GLboolea
 WASM_IMPORT(void, glBlitFramebuffer, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter));
 WASM_IMPORT(void, glRenderbufferStorageMultisample, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height));
 WASM_IMPORT(void, glFramebufferTextureLayer, (GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer));
-WASM_IMPORT(void, , glMapBufferRange (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access));
-WASM_IMPORT(void, glFlushMappedBufferRange, (GLenum target, GLintptr offset, GLsizeiptr length));
+// WASM_IMPORT(void*, glMapBufferRange, (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access));
+// WASM_IMPORT(void, glFlushMappedBufferRange, (GLenum target, GLintptr offset, GLsizeiptr length));
 WASM_IMPORT(void, glBindVertexArray, (GLuint array));
 WASM_IMPORT(void, glDeleteVertexArrays, (GLsizei n, const GLuint *arrays));
 WASM_IMPORT(void, glGenVertexArrays, (GLsizei n, GLuint *arrays));
@@ -876,7 +879,7 @@ WASM_IMPORT(void, glClearBufferiv, (GLenum buffer, GLint drawbuffer, const GLint
 WASM_IMPORT(void, glClearBufferuiv, (GLenum buffer, GLint drawbuffer, const GLuint *value));
 WASM_IMPORT(void, glClearBufferfv, (GLenum buffer, GLint drawbuffer, const GLfloat *value));
 WASM_IMPORT(void, glClearBufferfi, (GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil));
-WASM_IMPORT(const, GLubyte, *glGetStringi (GLenum name, GLuint index));
+WASM_IMPORT(const GLubyte*, glGetStringi, (GLenum name, GLuint index));
 WASM_IMPORT(void, glCopyBufferSubData, (GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size));
 WASM_IMPORT(void, glGetUniformIndices, (GLuint program, GLsizei uniformCount, const GLchar *const*uniformNames, GLuint *uniformIndices));
 WASM_IMPORT(void, glGetActiveUniformsiv, (GLuint program, GLsizei uniformCount, const GLuint *uniformIndices, GLenum pname, GLint *params));
@@ -889,7 +892,7 @@ WASM_IMPORT(void, glDrawElementsInstanced, (GLenum mode, GLsizei count, GLenum t
 WASM_IMPORT(GLsync, glFenceSync, (GLenum condition, GLbitfield flags));
 WASM_IMPORT(GLboolean, glIsSync, (GLsync sync));
 WASM_IMPORT(void, glDeleteSync, (GLsync sync));
-WASM_IMPORT(GLenum, glClientWaitSync, (GLsync sync, GLbitfield flags, GLuint64 timeout));
+WASM_IMPORT(GLenum, glClientWaitSync, (GLsync sync, GLbitfield flags, GLint64 timeout));
 WASM_IMPORT(void, glWaitSync, (GLsync sync, GLbitfield flags, GLuint64 timeout));
 WASM_IMPORT(void, glGetInteger64v, (GLenum pname, GLint64 *data));
 WASM_IMPORT(void, glGetSynciv, (GLsync sync, GLenum pname, GLsizei count, GLsizei *length, GLint *values));
@@ -912,9 +915,9 @@ WASM_IMPORT(void, glGenTransformFeedbacks, (GLsizei n, GLuint *ids));
 WASM_IMPORT(GLboolean, glIsTransformFeedback, (GLuint id));
 WASM_IMPORT(void, glPauseTransformFeedback, (void));
 WASM_IMPORT(void, glResumeTransformFeedback, (void));
-WASM_IMPORT(void, glGetProgramBinary, (GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, void *binary));
-WASM_IMPORT(void, glProgramBinary, (GLuint program, GLenum binaryFormat, const void *binary, GLsizei length));
-WASM_IMPORT(void, glProgramParameteri, (GLuint program, GLenum pname, GLint value));
+// WASM_IMPORT(void, glGetProgramBinary, (GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, void *binary));
+// WASM_IMPORT(void, glProgramBinary, (GLuint program, GLenum binaryFormat, const void *binary, GLsizei length));
+// WASM_IMPORT(void, glProgramParameteri, (GLuint program, GLenum pname, GLint value));
 WASM_IMPORT(void, glInvalidateFramebuffer, (GLenum target, GLsizei numAttachments, const GLenum *attachments));
 WASM_IMPORT(void, glInvalidateSubFramebuffer, (GLenum target, GLsizei numAttachments, const GLenum *attachments, GLint x, GLint y, GLsizei width, GLsizei height));
 WASM_IMPORT(void, glTexStorage2D, (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height));
