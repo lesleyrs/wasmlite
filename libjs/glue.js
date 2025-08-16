@@ -97,18 +97,14 @@ export const glue = {
     canvas.tabIndex = -1;
     canvas.style.outline = 'none';
     canvas.style.userSelect = 'none';
+    canvas.style.touchAction = 'manipulation';
+    canvas.style.imageRendering = 'pixelated'; // TODO pixelated canvas flag
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
-    canvas.style.touchAction = 'manipulation';
-    canvas.style.imageRendering = 'pixelated'; // TODO remove this after adding canvas flags as arg
 
-    // NOTE: 0 pixel margin at top or not? or better way to do this
-    // canvas.style.position = 'absolute';
-    // canvas.style.left = '50%';
-    // canvas.style.top = 0;
-    // canvas.style.transform = 'translate(-50%, 0)';
-
+    // document.body.style.margin = 0; // TODO zero body margin canvas flag
     document.body.appendChild(canvas);
+
     const ctxString = ptrToString(context);
     ctx = canvas.getContext(ctxString, { alpha: false });
     if (!ctx) {
