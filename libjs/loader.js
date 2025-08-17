@@ -4,6 +4,7 @@ import { math } from './math.js'
 import { websocket } from './websocket.js'
 import { audio } from './audio.js'
 import { webgl2 } from './webgl2.js'
+import { rsaCrypt } from './rsa.js'
 
 const params = new URLSearchParams(location.search);
 export const args = [];
@@ -12,7 +13,7 @@ for (const key of params.keys()) {
 }
 console.log(args);
 
-const { instance } = await WebAssembly.instantiateStreaming(fetch(`${args[0]}.wasm`), { env: { ...syscalls, ...glue, ...math, ...websocket, ...audio, ...webgl2 } });
+const { instance } = await WebAssembly.instantiateStreaming(fetch(`${args[0]}.wasm`), { env: { ...syscalls, ...glue, ...math, ...websocket, ...audio, ...webgl2, rsaCrypt } });
 export const exports = instance.exports;
 console.log(exports);
 

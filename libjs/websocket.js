@@ -1,6 +1,5 @@
-import { exports, u8 } from './loader.js'
+import { exports, u8, refreshMemory } from './loader.js'
 import { ptrToString } from './utils.js'
-import { refreshMemory } from './loader.js'
 
 class SocketBuffer {
   queue = [];
