@@ -31,7 +31,7 @@ export let u8 = new Uint8Array(buffer);
 export let u32 = new Uint32Array(buffer);
 export let f32 = new Float32Array(buffer);
 
-// NOTE: this is needed as __builtin_wasm_memory_grow can be called anytime
+// NOTE: this is needed as __builtin_wasm_memory_grow can be called anytime, so it can't be a callback in dlmalloc
 export function refreshMemory() {
   if (buffer.byteLength === 0) {
     buffer = memory.buffer;

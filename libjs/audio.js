@@ -1,9 +1,9 @@
 import { refreshMemory, exports, u8, f32 } from './loader.js'
 
 // TODO doom wants panning, stopAudio, isPlaying, doom sound explosion caused by those missing calls?
+// NOTE we can't call wasm functions in AudioWorklet without SharedArrayBuffer + --import-memory, so unused
 
 const audioCtx = new AudioContext();
-// const audioCtx = new AudioContext({ sampleRate: 44100 }); // TODO this is needed on chrome as it resamples badly
 // TODO streamGain
 let audioGain = audioCtx.createGain();
 audioGain.connect(audioCtx.destination);
@@ -47,5 +47,5 @@ export const audio = {
     };
 
     processor.connect(audioCtx.destination);
-  }
+  },
 }
