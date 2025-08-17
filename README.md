@@ -56,7 +56,7 @@ Optional:
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
 - Chrome performance drops with dev console open, Firefox can't fully make use of the wasm sourcemaps
-- TODO: streaming audio/webgpu/webworker + some events: touch/gamepad/glctx loss+restore etc https://developer.mozilla.org/en-US/docs/Web/Events
+- TODO: webgpu/webworker + some events: touch/gamepad/glctx loss+restore etc https://developer.mozilla.org/en-US/docs/Web/Events
 - WIP: webgl2, pdclib can't format floats yet causing issues with EG printing fps and quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
 
 ## Ports

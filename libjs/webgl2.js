@@ -1,4 +1,4 @@
-import { memory, refreshMemory, u8, u32 } from './loader.js'
+import { refreshMemory, u8, u32, f32 } from './loader.js'
 import { ptrToString, allocString } from './utils.js'
 import { ctx as gl } from './glue.js'
 
@@ -185,8 +185,8 @@ export const webgl2 = {
   glUniformMatrix4fv: (id, count, transpose, value) => {
     refreshMemory();
     const uniform = uniforms.get(id) || null;
-    const floatValues = new Float32Array(memory.buffer, value, count * 16); // TODO f32 in loader?
-    gl.uniformMatrix4fv(uniform.location, transpose, floatValues);
+    const value32 = value >> 2;
+    gl.uniformMatrix4fv(uniform.location, transpose, f32.subarray(value32, value32 + count * 16));
   },
   glActiveTexture: (texture) => gl.activeTexture(texture),
   glUniform1i: (id, v0) => {
@@ -341,8 +341,8 @@ export const webgl2 = {
   },
   glVertexAttrib4fv: (index, v) => {
     refreshMemory();
-    const floatValues = new Float32Array(memory.buffer, v, count * 16); // TODO f32 in loader?
-    gl.vertexAttrib4fv(index, floatValues);
+    const v32 = v >> 2;
+    gl.vertexAttrib4fv(index, f32.subarray(v32, v32 + count * 16));
   },
   glDisableVertexAttribArray: (index) => {
     gl.disableVertexAttribArray(index);
