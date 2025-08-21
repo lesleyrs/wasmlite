@@ -1,4 +1,4 @@
-import { exports, decoder, u8, refreshMemory } from './loader.js'
+import { exports, encoder, decoder, u8, refreshMemory } from './loader.js'
 
 export function ptrToString(ptr, len) {
   refreshMemory();
@@ -17,12 +17,11 @@ function strlen(ptr, u8) {
 }
 
 export function allocString(str) {
-  refreshMemory();
-  const ptr = exports.malloc(str.length + 1);
+  const bytes = encoder.encode(str);
+  const ptr = exports.malloc(bytes.length + 1);
   if (!ptr) return 0;
-  for (let i = 0; i < str.length; i++) {
-    u8[ptr + i] = str.charCodeAt(i);
-  }
-  u8[ptr + str.length] = 0;
+  refreshMemory();
+  u8.set(bytes, ptr);
+  u8[ptr + bytes.length] = 0;
   return ptr;
 }
