@@ -162,7 +162,7 @@ export const glue = {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)(userdata));
   },
   JS_addMouseEventListener: (userdata, cb, cb2, cb3) => {
-    if (cb && cb2) {
+    if (cb) {
       setMouseCB('mousedown', userdata, cb, cb2);
       setMouseCB('mouseup', userdata, cb, cb2);
     }
@@ -241,18 +241,17 @@ function setMouseMoveCB(name, userdata, cb) {
 
 function setMouseCB(name, userdata, cb, cb2) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
-    handleMouseMove(e, userdata, cb2); // clicks call mousemove to update pos after resizes etc TODO avoid unneeded calls
-    const rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'mousedown', e.button);
-    if (rc) {
-      e.preventDefault();
+    if (cb2) {
+      handleMouseMove(e, userdata, cb2); // clicks call mousemove to update pos after resizes etc TODO avoid unneeded calls
     }
+    WebAssembly.promising(exports.__indirect_function_table.get(cb))(userdata, e.type === 'mousedown', e.button);
   });
 }
 
 function setKeyCB(name, userdata, cb) {
   canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location (unused)
-    const rc = exports.__indirect_function_table.get(cb)(userdata, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
+    const rc = WebAssembly.promising(exports.__indirect_function_table.get(cb))(userdata, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {
       e.preventDefault();
     }

@@ -45,8 +45,8 @@ WASM_IMPORT(void, JS_strokeRect, (double x, double y, double w, double h));
 #define MBTN_RIGHT 2
 
 typedef bool (*JS_KeyCallback)(void *userdata, bool pressed, int key, int code, int modifiers);
+typedef void (*JS_MouseCallback)(void *userdata, bool pressed, int button);
 typedef bool (*JS_MouseMoveCallback)(void *userdata, int x, int y);
-typedef bool (*JS_MouseCallback)(void *userdata, bool pressed, int button);
 typedef bool (*JS_WheelCallback)(void* userdata, double delta);
 /* TODO: add focus event + framebuffer resize if added */
 
