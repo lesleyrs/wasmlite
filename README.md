@@ -51,7 +51,7 @@ Optional:
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
 - compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
-- [wcc](https://github.com/tyfkda/xcc): alternative to clang+wasm-ld but lacking goto and may have other issues compiling. use `/path/to/wcc -isystem=/path/to/libc/include -L/path/to/libc/lib -Wl,--export-table --stack-size=amount`.
+- [wcc](https://github.com/tyfkda/xcc): alternative to clang+wasm-ld but lacking goto, no dwarf debuginfo and may have other issues compiling. use `/path/to/wcc -isystem=/path/to/libc/include -L/path/to/libc/lib -Wl,--export-table --stack-size=amount`.
 
 ## Limitations
 - no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
