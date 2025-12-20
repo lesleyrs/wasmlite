@@ -66,4 +66,48 @@ export const math = {
   tanh: Math.tanh,
   // tgamma:,
   trunc: Math.trunc,
+
+  // floats
+  acosf: Math.acos,
+  acoshf: Math.acosh,
+  asinf: Math.asin,
+  asinhf: Math.asinh,
+  atanf: Math.atan,
+  atan2f: Math.atan2,
+  atanhf: Math.atanh,
+  cbrtf: Math.cbrt,
+  ceilf: Math.ceil,
+  cosf: Math.cos,
+  coshf: Math.cosh,
+  expf: Math.exp,
+  exp2f: (x) => Math.pow(2, x),
+  expm1f: Math.expm1,
+  fabsf: Math.abs,
+  fdimf: (x, y) => {
+    if (math.isnan(x))
+      return x;
+    if (math.isnan(y))
+      return y;
+    return x > y ? x - y : 0;
+  },
+  floorf: Math.floor,
+  fmaxf: Math.max,
+  fminf: Math.min,
+  fmodf: (x, y) => x % y,
+  hypotf: Math.hypot,
+  ldexpf: (x, exp) => x * Math.pow(2, exp),
+  logf: Math.log,
+  log10f: Math.log10,
+  log1pf: Math.log1p,
+  log2f: Math.log2,
+  modff: Math.modf,
+  nanf: (s) => NaN,
+  powf: Math.pow,
+  roundf: Math.round,
+  sinf: Math.sin,
+  sinhf: Math.sinh,
+  sqrtf: Math.sqrt,
+  tanf: Math.tan,
+  tanhf: Math.tanh,
+  truncf: Math.trunc,
 }
