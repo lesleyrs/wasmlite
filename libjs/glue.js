@@ -68,6 +68,31 @@ export const glue = {
   }),
   JS_setTimeout: new WebAssembly.Suspending(async (ms) => await new Promise(resolve => setTimeout(resolve, ms))),
   JS_requestAnimationFrame: new WebAssembly.Suspending(async () => await new Promise(resolve => requestAnimationFrame(resolve))),
+  JS_setMainLoopSETTIMEOUT: new WebAssembly.Suspending(async (cb, fps) => await new Promise(resolve => {
+    let last = performance.now();
+
+    function frame() {
+      const now = performance.now();
+      const dt = (now - last) * 0.001;
+      last = now;
+      WebAssembly.promising(exports.__indirect_function_table.get(cb))(dt);
+      setTimeout(frame, 1000 / fps);
+    }
+
+    setTimeout(frame);
+  })),
+  JS_setMainLoopRAF: new WebAssembly.Suspending(async (cb) => {
+    let last = performance.now();
+
+    function frame(now) {
+      const dt = (now - last) * 0.001;
+      last = now;
+      WebAssembly.promising(exports.__indirect_function_table.get(cb))(dt);
+      requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  }),
   JS_DateNow: () => Date.now(),
   JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
