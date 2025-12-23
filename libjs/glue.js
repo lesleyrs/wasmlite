@@ -68,31 +68,12 @@ export const glue = {
   }),
   JS_setTimeout: new WebAssembly.Suspending(async (ms) => await new Promise(resolve => setTimeout(resolve, ms))),
   JS_requestAnimationFrame: new WebAssembly.Suspending(async () => await new Promise(resolve => requestAnimationFrame(resolve))),
-  JS_setMainLoopSETTIMEOUT: new WebAssembly.Suspending(async (cb, fps) => await new Promise(resolve => {
-    let last = performance.now();
-
-    function frame() {
-      const now = performance.now();
-      const dt = (now - last) * 0.001;
-      last = now;
-      WebAssembly.promising(exports.__indirect_function_table.get(cb))(dt);
-      setTimeout(frame, 1000 / fps);
-    }
-
-    setTimeout(frame);
+  JS_setMainLoop: new WebAssembly.Suspending(async (cb, fps) => await new Promise(resolve => {
+    setMainLoop(cb, null, fps);
   })),
-  JS_setMainLoopRAF: new WebAssembly.Suspending(async (cb) => {
-    let last = performance.now();
-
-    function frame(now) {
-      const dt = (now - last) * 0.001;
-      last = now;
-      WebAssembly.promising(exports.__indirect_function_table.get(cb))(dt);
-      requestAnimationFrame(frame);
-    }
-
-    requestAnimationFrame(frame);
-  }),
+  JS_setMainLoopArg: new WebAssembly.Suspending(async (cb, arg, fps) => await new Promise(resolve => {
+    setMainLoop(cb, arg, fps);
+  })),
   JS_DateNow: () => Date.now(),
   JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
@@ -203,6 +184,30 @@ export const glue = {
     setKeyCB('keyup', userdata, cb);
   },
 };
+
+function setMainLoop(cb, arg, fps) {
+  let last = performance.now();
+
+  function frame(now) {
+    const dt = (now - last) * 0.001;
+    last = now;
+
+    const callback = WebAssembly.promising(exports.__indirect_function_table.get(cb));
+    if (arg) {
+      callback(arg, dt);
+    } else {
+      callback(dt);
+    }
+
+    if (fps === 0) {
+      requestAnimationFrame(frame);
+    } else {
+      setTimeout(frame, 1000 / fps, performance.now());
+    }
+  }
+
+  frame(last);
+}
 
 function setWheelCB(name, userdata, cb) {
   canvas.addEventListener(name, /** @param {WheelEvent} e */ e => {

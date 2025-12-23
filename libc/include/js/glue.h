@@ -18,8 +18,13 @@ WASM_IMPORT(void, JS_createCanvas, (int width, int height, const char* context))
 /* TIMING: */
 WASM_IMPORT(void, JS_setTimeout, (int ms));
 WASM_IMPORT(void, JS_requestAnimationFrame, (void));
-WASM_IMPORT(void, JS_setMainLoopSETTIMEOUT, (void (*mainloop)(double sec), int fps));
-WASM_IMPORT(void, JS_setMainLoopRAF, (void (*mainloop)(double sec)));
+
+typedef void (*JS_mainloop)(double sec);
+typedef void (*JS_mainloopArg)(void* arg, double sec);
+
+/* 0 fps for RAF */
+WASM_IMPORT(void, JS_setMainLoop, (JS_mainloop, int fps));
+WASM_IMPORT(void, JS_setMainLoopArg, (JS_mainloopArg, void* arg, int fps));
 
 WASM_IMPORT(double, JS_DateNow, (void));
 WASM_IMPORT(double, JS_performanceNow, (void));
