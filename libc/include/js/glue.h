@@ -22,7 +22,7 @@ WASM_IMPORT(void, JS_requestAnimationFrame, (void));
 typedef void (*JS_mainloop)(double sec);
 typedef void (*JS_mainloopArg)(void* arg, double sec);
 
-/* 0 fps for RAF */
+/* 0 fps for RAF, these are optional you can also use the above setTimeout/RAF directly in a loop */
 WASM_IMPORT(void, JS_setMainLoop, (JS_mainloop, int fps));
 WASM_IMPORT(void, JS_setMainLoopArg, (JS_mainloopArg, void* arg, int fps));
 

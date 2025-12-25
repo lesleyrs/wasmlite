@@ -112,7 +112,8 @@ export const glue = {
     document.body.appendChild(canvas);
 
     const ctxString = ptrToString(context);
-    ctx = canvas.getContext(ctxString, { alpha: false });
+    // disable antialias by default to align better with desktop TODO allow setting attributes
+    ctx = canvas.getContext(ctxString, { antialias: false, alpha: false });
     if (!ctx) {
       throw new Error(`${ctxString} not supported`);
     }

@@ -130,7 +130,7 @@ export const webgl2 = {
   glCullFace: (mode) => gl.cullFace(mode),
   glDrawElements: (mode, count, type, indices) => {
     refreshMemory();
-    gl.drawElements(mode, count, type, indices, indices);
+    gl.drawElements(mode, count, type, indices);
   },
   glBindAttribLocation: (id, index, name) => {
     const program = programs.get(id) || null;
