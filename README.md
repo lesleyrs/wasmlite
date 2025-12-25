@@ -43,7 +43,9 @@ or
 llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump-output=out.wasm.dwarf
 ```
-after this chrome will automatically load the sourcemap linked in the modified wasm file.
+If your systems llvm-dwarfdump isn't compatible with the latest wasm-sourcemap.py, you can also use `emsdk/upstream/bin/llvm-dwarfdump`.
+
+After this chrome will automatically load the sourcemap linked in the modified wasm file.
 
 Optional:
 - bundler/minifier/http server: [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install), npm/node are not needed!
