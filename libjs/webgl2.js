@@ -3,12 +3,13 @@ import { ptrToString, allocString } from './utils.js'
 import { ctx as gl } from './glue.js'
 
 let nextId = 1;
+/** @type {Map<number, {id: number, name: string, location: WebGLUniformLocation}>} */
+const uniforms = new Map();
+
 const shaders = [];
 const programs = [];
 const vaos = [];
 const vbos = [];
-/** @type {Map<number, {id: number, name: string, location: WebGLUniformLocation}>} */
-const uniforms = new Map();
 const textures = [];
 const framebuffers = [];
 
@@ -80,23 +81,13 @@ export const webgl2 = {
     console.log(gl.getShaderInfoLog(shader));
   },
   glGenVertexArrays: (n, ptr) => {
-    refreshMemory();
-    for (let i = 0; i < n; i++) {
-      const vao = gl.createVertexArray();
-      vaos[nextId] = vao;
-      u32[(ptr >> 2) + i] = nextId++;
-    }
+    glGenObjects(n, ptr, "createVertexArray", vaos);
   },
   glBindVertexArray: (id) => {
     gl.bindVertexArray(vaos[id]);
   },
   glGenBuffers: (n, ptr) => {
-    refreshMemory();
-    for (let i = 0; i < n; i++) {
-      const vbo = gl.createBuffer();
-      vbos[nextId] = vbo;
-      u32[(ptr >> 2) + i] = nextId++;
-    }
+    glGenObjects(n, ptr, "createBuffer", vbos);
   },
   glBindBuffer: (target, id) => {
     const vbo = vbos[id];
@@ -206,13 +197,7 @@ export const webgl2 = {
     gl.uniform4f(uniform.location, v0, v1, v2, v3);
   },
   glGenTextures: (n, ptr) => {
-    refreshMemory();
-    for (let i = 0; i < n; i++) {
-      const tex = gl.createTexture();
-      const id = nextId++;
-      textures[id] = tex;
-      u32[(ptr >> 2) + i] = id;
-    }
+    glGenObjects(n, ptr, "createTexture", textures);
   },
   glBindTexture: (target, id) => gl.bindTexture(target, textures[id]),
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
@@ -259,13 +244,7 @@ export const webgl2 = {
     gl.bindBufferBase(target, index, vbo);
   },
   glGenFramebuffers: (n, ptr) => {
-    refreshMemory();
-    for (let i = 0; i < n; i++) {
-      const tex = gl.createFramebuffer();
-      const id = nextId++;
-      framebuffers[id] = tex;
-      u32[(ptr >> 2) + i] = id;
-    }
+    glGenObjects(n, ptr, "createFramebuffer", framebuffers);
   },
   glBindFramebuffer: (target, id) => {
     const framebuffer = framebuffers[id];
@@ -347,8 +326,16 @@ export const webgl2 = {
   glDisableVertexAttribArray: (index) => {
     gl.disableVertexAttribArray(index);
   },
-
-
-
-
 };
+
+function glGenObjects(n, ptr, createFunction, objectTable) {
+  refreshMemory();
+  for (let i = 0; i < n; i++) {
+    const buf = gl[createFunction]();
+    if (buf) {
+      const id = nextId++;
+      objectTable[id] = buf;
+      u32[(ptr >> 2) + i] = id;
+    }
+  }
+}
