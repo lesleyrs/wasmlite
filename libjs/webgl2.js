@@ -3,14 +3,14 @@ import { ptrToString, allocString } from './utils.js'
 import { ctx as gl } from './glue.js'
 
 let nextId = 1;
-const shaders = new Map();
-const programs = new Map();
-const VAOs = new Map();
-const VBOs = new Map();
+const shaders = [];
+const programs = [];
+const vaos = [];
+const vbos = [];
 /** @type {Map<number, {id: number, name: string, location: WebGLUniformLocation}>} */
 const uniforms = new Map();
-const textures = new Map();
-const framebuffers = new Map();
+const textures = [];
+const framebuffers = [];
 
 // TODO consistent naming for args use Ptr suffix and maybe change global map names?
 // TODO check return values + improve nextId usage, add missing gl funcs
@@ -23,11 +23,11 @@ export const webgl2 = {
   glClear: (mask) => gl.clear(mask),
   glCreateProgram: () => {
     const program = gl.createProgram();
-    programs.set(nextId, program);
+    programs[nextId] = program;
     return nextId++;
   },
   glLinkProgram: (id) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.linkProgram(program);
     // NOTE TEMP
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -35,17 +35,17 @@ export const webgl2 = {
     }
   },
   glUseProgram: (id) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.useProgram(program)
   },
   glCreateShader: (type) => {
     const shader = gl.createShader(type);
-    shaders.set(nextId, shader);
+    shaders[nextId] = shader;
     return nextId++;
   },
   glShaderSource: (id, count, ptr, lenPtr) => {
     refreshMemory();
-    const shader = shaders.get(id) || null;
+    const shader = shaders[id];
     let sources = [];
 
     for (let i = 0; i < count; i++) {
@@ -59,12 +59,12 @@ export const webgl2 = {
     gl.shaderSource(shader, sources.join(''));
   },
   glAttachShader: (programId, shaderId) => {
-    const program = programs.get(programId);
-    const shader = shaders.get(shaderId);
+    const program = programs[programId];
+    const shader = shaders[shaderId];
     gl.attachShader(program, shader);
   },
   glCompileShader: (id) => {
-    const shader = shaders.get(id) || null;
+    const shader = shaders[id];
     gl.compileShader(shader);
     // NOTE TEMP
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -72,35 +72,34 @@ export const webgl2 = {
     }
   },
   glGetShaderParameter: (id, name) => {
-    const shader = shaders.get(id) || null;
+    const shader = shaders[id];
     console.log(gl.getShaderParameter(shader, name));
   },
   glGetShaderInfoLog: (id) => {
-    const shader = shaders.get(id) || null;
+    const shader = shaders[id];
     console.log(gl.getShaderInfoLog(shader));
   },
   glGenVertexArrays: (n, ptr) => {
     refreshMemory();
     for (let i = 0; i < n; i++) {
       const vao = gl.createVertexArray();
-      VAOs.set(nextId, vao);
+      vaos[nextId] = vao;
       u32[(ptr >> 2) + i] = nextId++;
     }
   },
   glBindVertexArray: (id) => {
-    const vao = VAOs.get(id) || null;
-    gl.bindVertexArray(vao);
+    gl.bindVertexArray(vaos[id]);
   },
   glGenBuffers: (n, ptr) => {
     refreshMemory();
     for (let i = 0; i < n; i++) {
       const vbo = gl.createBuffer();
-      VBOs.set(nextId, vbo);
+      vbos[nextId] = vbo;
       u32[(ptr >> 2) + i] = nextId++;
     }
   },
   glBindBuffer: (target, id) => {
-    const vbo = VBOs.get(id) || null;
+    const vbo = vbos[id];
     gl.bindBuffer(target, vbo);
   },
   glBufferData: (target, size, ptr, usage) => {
@@ -115,7 +114,7 @@ export const webgl2 = {
   },
   glGetAttribLocation: (id, ptr) => {
     const name = ptrToString(ptr);
-    const program = programs.get(id) || null;
+    const program = programs[id];
     return gl.getAttribLocation(program, name);
   },
   glEnableVertexAttribArray: (idx) => gl.enableVertexAttribArray(idx),
@@ -133,12 +132,12 @@ export const webgl2 = {
     gl.drawElements(mode, count, type, indices);
   },
   glBindAttribLocation: (id, index, name) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.bindAttribLocation(program, index, ptrToString(name));
   },
   glGetProgramiv: (id, pname, params) => {
     refreshMemory();
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.getProgramParameter(program, pname);
     // TODO
     if (params) {
@@ -147,13 +146,13 @@ export const webgl2 = {
   },
   glGetProgramInfoLog: (id, bufSize, length, infoLog) => {
     refreshMemory();
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.getProgramInfoLog(program);
     // TODO
   },
   glGetShaderiv: (id, pname, params) => {
     refreshMemory();
-    const program = shaders.get(id) || null;
+    const program = shaders[id];
     gl.getShaderParameter(program, pname);
     // TODO
     if (params) {
@@ -161,17 +160,18 @@ export const webgl2 = {
     }
   },
   glDeleteProgram: (id) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.deleteProgram(program);
-    programs.delete(id);
+    programs[id] = null;
   },
   glDeleteShader: (id) => {
-    const program = shaders.get(id) || null;
+    const program = shaders[id];
     gl.deleteShader(program);
-    shaders.delete(id);
+    shaders[id] = null;
   },
   glGetUniformLocation: (id, ptr) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
+    if (!program) return null;
     const name = ptrToString(ptr);
 
     for (const [uid, loc] of uniforms) {
@@ -210,11 +210,11 @@ export const webgl2 = {
     for (let i = 0; i < n; i++) {
       const tex = gl.createTexture();
       const id = nextId++;
-      textures.set(id, tex);
+      textures[id] = tex;
       u32[(ptr >> 2) + i] = id;
     }
   },
-  glBindTexture: (target, id) => gl.bindTexture(target, textures.get(id) || null),
+  glBindTexture: (target, id) => gl.bindTexture(target, textures[id]),
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
     if (pixelsPtr) {
@@ -228,17 +228,17 @@ export const webgl2 = {
   glDeleteTextures: (n, ptr) => {
     for (let i = 0; i < n; i++) {
       const id = u32[(ptr >> 2) + i];
-      const tex = textures.get(id) || null;
+      const tex = textures[id];
       gl.deleteTexture(tex);
-      textures.delete(id);
+      textures[id] = null;
     }
   },
   glDeleteVertexArrays: (n, ptr) => {
     refreshMemory();
     for (let i = 0; i < n; i++) {
       const id = u32[(ptr >> 2) + i];
-      gl.deleteVertexArray(VAOs.get(id) || null);
-      VAOs.delete(id);
+      gl.deleteVertexArray(vaos[id]);
+      vaos[id] = null;
     }
   },
   glVertexAttribIPointer: (index, size, type, stride, pointer) => {
@@ -248,14 +248,14 @@ export const webgl2 = {
     refreshMemory();
     for (let i = 0; i < n; i++) {
       const id = u32[(ptr >> 2) + i];
-      gl.deleteBuffer(VBOs.get(id) || null);
-      VBOs.delete(id);
+      gl.deleteBuffer(vbos[id]);
+      vbos[id] = null;
     }
   },
   glDepthMask: (flag) => gl.depthMask(flag),
   glGenerateMipmap: (target) => gl.generateMipmap(target),
   glBindBufferBase: (target, index, id) => {
-    const vbo = VBOs.get(id) || null;
+    const vbo = vbos[id];
     gl.bindBufferBase(target, index, vbo);
   },
   glGenFramebuffers: (n, ptr) => {
@@ -263,24 +263,24 @@ export const webgl2 = {
     for (let i = 0; i < n; i++) {
       const tex = gl.createFramebuffer();
       const id = nextId++;
-      framebuffers.set(id, tex);
+      framebuffers[id] = tex;
       u32[(ptr >> 2) + i] = id;
     }
   },
   glBindFramebuffer: (target, id) => {
-    const framebuffer = framebuffers.get(id) || null;
+    const framebuffer = framebuffers[id];
     gl.bindFramebuffer(target, framebuffer);
   },
   glFramebufferTexture2D: (target, attachment, textarget, id, level) => {
-    const texture = textures.get(id) || null;
+    const texture = textures[id];
     gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   },
   glDeleteFramebuffers: (n, ptr) => {
     for (let i = 0; i < n; i++) {
       const id = u32[(ptr >> 2) + i];
-      const framebuffer = framebuffers.get(id) || null;
+      const framebuffer = framebuffers[id];
       gl.deleteFramebuffer(framebuffer);
-      framebuffers.delete(id);
+      framebuffers[id] = null;
     }
   },
   glColorMask: (red, green, blue, alpha) => {
@@ -332,11 +332,11 @@ export const webgl2 = {
     gl.stencilOp(fail, zfail, zpass);
   },
   glUniformBlockBinding: (id, uniformBlockIndex, uniformBlockBinding) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
   },
   glGetUniformBlockIndex: (id, uniformBlockName) => {
-    const program = programs.get(id) || null;
+    const program = programs[id];
     gl.getUniformBlockIndex(program, ptrToString(uniformBlockName));
   },
   glVertexAttrib4fv: (index, v) => {
