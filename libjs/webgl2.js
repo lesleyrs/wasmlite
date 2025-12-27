@@ -13,8 +13,7 @@ const vbos = [];
 const textures = [];
 const framebuffers = [];
 
-// TODO consistent naming for args use Ptr suffix and maybe change global map names?
-// TODO check return values + improve nextId usage, add missing gl funcs
+// TODO check return values, add missing gl funcs, fix performance issue?
 export const webgl2 = {
   glGetString: (name) => {
     const str = gl.getParameter(name);
@@ -47,17 +46,16 @@ export const webgl2 = {
   glShaderSource: (id, count, ptr, lenPtr) => {
     refreshMemory();
     const shader = shaders[id];
-    let sources = [];
+    let source = '';
 
     for (let i = 0; i < count; i++) {
       const strPtr = u32[(ptr >> 2) + i];
       const length = lenPtr ? u32[(lenPtr >> 2) + i] : undefined;
-      const str = ptrToString(strPtr, length);
-      sources.push(str);
+      source += ptrToString(strPtr, length);
     }
 
-    // console.log(sources.join('')); // TODO rm
-    gl.shaderSource(shader, sources.join(''));
+    // console.log(source); // TODO rm
+    gl.shaderSource(shader, source);
   },
   glAttachShader: (programId, shaderId) => {
     const program = programs[programId];
@@ -99,7 +97,6 @@ export const webgl2 = {
       const data = u8.subarray(ptr, ptr + size);
       gl.bufferData(target, data, usage);
     } else {
-      // TODO check this
       gl.bufferData(target, size, usage);
     }
   },
