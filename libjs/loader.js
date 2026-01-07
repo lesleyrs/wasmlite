@@ -12,11 +12,7 @@ const imports = {
   }
 };
 
-const params = new URLSearchParams(location.search);
-export const args = [];
-for (const key of params.keys()) {
-  args.push(key);
-}
+export const args = [...new URLSearchParams(location.search).keys()];
 console.log(args);
 
 const { instance } = await WebAssembly.instantiateStreaming(fetch(`${args[0]}.wasm`), imports);
