@@ -57,6 +57,7 @@ typedef bool (*JS_MouseMoveCallback)(void *userdata, int x, int y);
 typedef bool (*JS_WheelCallback)(void* userdata, double delta);
 /* TODO: add focus event + framebuffer resize if added */
 
+WASM_IMPORT(void, JS_addBeforeUnloadListener, (void));
 WASM_IMPORT(void, JS_requestPointerLock, (void));
 WASM_IMPORT(void, JS_addPointerLockChangeEventListener, (void (*cb)(bool locked)));
 /* visibilitychange didn't run on alt-tab so we use blur to release keys for example */

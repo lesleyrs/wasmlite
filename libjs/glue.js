@@ -155,6 +155,11 @@ export const glue = {
   JS_strokeStyle: (color) => ctx.strokeStyle = ptrToString(color),
   JS_strokeRect: (x, y, w, h) => ctx.strokeRect(x, y, w, h),
 
+  JS_addBeforeUnloadListener: () => {
+    window.addEventListener('beforeunload', e => {
+      e.preventDefault();
+    })
+  },
   JS_requestPointerLock: () => {
     if (!document.pointerLockElement) {
       canvas.requestPointerLock({unadjustedMovement: true});
@@ -272,6 +277,9 @@ function setMouseMoveCB(name, userdata, cb) {
 
 function setMouseCB(name, userdata, cb, cb2) {
   canvas.addEventListener(name, /** @param {MouseEvent} e */ e => {
+    if (e.button === 3 || e.button === 4) { // browser back/forward fire in chrome but NOT firefox
+      e.preventDefault();
+    }
     if (cb2) {
       handleMouseMove(e, userdata, cb2); // clicks call mousemove to update pos after resizes etc TODO avoid unneeded calls
     }
