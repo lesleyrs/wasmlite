@@ -288,9 +288,9 @@ function setMouseCB(name, userdata, cb, cb2) {
 }
 
 function setKeyCB(name, userdata, cb) {
-  canvas.addEventListener(name, /** @param {KeyboardEvent} e */ e => {
+  canvas.addEventListener(name, /** @param {KeyboardEvent} e */ async e => {
     // e.keyCode avoids key mapping but varies between browsers/kb layout + no separate value for each keyboard location (unused)
-    const rc = WebAssembly.promising(exports.__indirect_function_table.get(cb))(userdata, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey << 0 | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
+    const rc = await WebAssembly.promising(exports.__indirect_function_table.get(cb))(userdata, e.type === 'keydown', getKey(e.key), getCode(e.code), e.ctrlKey | e.shiftKey << 1 | e.altKey << 2 | e.metaKey << 3);
     if (rc) {
       e.preventDefault();
     }
