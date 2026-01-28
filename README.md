@@ -7,7 +7,6 @@ This requires a modern chrome version or `javascript.options.wasm_js_promise_int
 ## Usage
 ```
 CC = clang --target=wasm32 --sysroot=/path/to/wasm/libc
-CFLAGS += -fno-builtin # fixes math.h undefined symbols, but also disables other builtins (specific -fno-builtin-X might break as later clang versions have more builtins) TODO a proper libm would fix this, but openlibm gave wrong results.
 LDFLAGS += -nodefaultlibs -lc -lm # avoids system path libclang_rt.builtins-wasm32.a, or `-nostdlib -Dmain=_start -lc -lm` for no crt1 as well
 LDFLAGS += -Wl,--export-table # for function pointers access in JS, such as for event listeners
 LDFLAGS += -Wl,--export=malloc # for JS functions that allocate internally (JS_openFilePicker/glGetString)
