@@ -11,9 +11,7 @@ export let ctx;
 let imageData;
 
 export const glue = {
-  // NOTE: temp convenience function while pdclib doesn't support float formatting
-  JS_logFloat: (args) => console.log(args),
-
+  JS_logFloat: (float) => console.log(float), // NOTE: for double checking float values, pdclib may be inaccurate
   JS_alert: (ptr) => alert(ptrToString(ptr)),
   JS_saveFile: (namePtr, bufPtr, len) => {
     refreshMemory();

@@ -84,6 +84,9 @@ extern "C" {
 /* _PDCLIB_CONSTRAINT_VIOLATION( e ) expand errno number e to parameter list  */
 /*                                   fit for Annex K constraint violation     */
 /*                                   handler.                                 */
+/* _PDCLIB_Generic( f, fp ) expand to _PDCLIB_f, _PDCLIB_ff, _PDCLIB_fl       */
+/*                          depending on fp being sizeof double, float, or    */
+/*                          long double.                                      */
 /* -------------------------------------------------------------------------- */
 
 #define _PDCLIB_static_assert( e, m ) enum { _PDCLIB_concat( _PDCLIB_assert_, __LINE__ ) = 1 / ( !!(e) ) }
@@ -106,6 +109,15 @@ extern "C" {
 #define _PDCLIB_GETC( fh ) ( ( fh->ungetidx == 0 ) ? ( unsigned char )fh->buffer[ fh->bufidx++ ] : ( unsigned char )fh->ungetbuf[ --fh->ungetidx ] )
 
 #define _PDCLIB_CHECKBUFFER( fh ) ( ( ( fh->bufidx == fh->bufend ) && ( fh->ungetidx == 0 ) ) ? _PDCLIB_fillbuffer( fh ) : 0 )
+
+// TODO swapped long double for double
+// #define _PDCLIB_GENERIC( func, x ) ( ( sizeof( x ) == sizeof( double ) ) ? _PDCLIB_ ## func ## d( x ) : \
+//                                      ( sizeof( x ) == sizeof( float ) ) ? _PDCLIB_ ## func ## f( x ) : \
+//                                      ( _PDCLIB_ ## func ## l( x ) ) )
+
+#define _PDCLIB_GENERIC( func, x ) ( ( sizeof( x ) == sizeof( double ) ) ? _PDCLIB_ ## func ## d( x ) : \
+                                     ( sizeof( x ) == sizeof( float ) ) ? _PDCLIB_ ## func ## f( x ) : \
+                                     ( _PDCLIB_ ## func ## d( x ) ) )
 
 /* -------------------------------------------------------------------------- */
 /* Preparing the length modifiers used in <inttypes.h>.                       */
@@ -377,8 +389,8 @@ _PDCLIB_LOCAL _PDCLIB_intmax_t _PDCLIB_atomax( const char * s );
 _PDCLIB_LOCAL const char * _PDCLIB_strtox_prelim( const char * p, char * sign, int * base );
 _PDCLIB_LOCAL _PDCLIB_uintmax_t _PDCLIB_strtox_main( const char ** p, unsigned int base, _PDCLIB_uintmax_t error, _PDCLIB_uintmax_t limval, int limdigit, char * sign );
 
-/* A helper function used by strtof(), strtod(), and strtold().               */
-_PDCLIB_LOCAL void _PDCLIB_strtod_scan( const char * s, const char ** dec, const char ** frac, const char ** exp, int base );
+/* Helper function used by strtof(), strtod(), and strtold().                 */
+_PDCLIB_LOCAL int _PDCLIB_strtod_prelim( const char * p, char * sign, char ** endptr );
 
 /* Digits arrays used by various integer conversion functions */
 extern const char _PDCLIB_digits[];
@@ -461,12 +473,40 @@ _PDCLIB_LOCAL int _PDCLIB_getstream( struct _PDCLIB_file_t * stream );
 /* Backend for strtok and strtok_s (plus potential extensions like strtok_r). */
 _PDCLIB_LOCAL char * _PDCLIB_strtok( char * _PDCLIB_restrict s1, _PDCLIB_size_t * _PDCLIB_restrict s1max, const char * _PDCLIB_restrict s2, char ** _PDCLIB_restrict ptr );
 
+// TODO changed long double to doubles
+/* Conversion of exponent notation to floating point */
+_PDCLIB_LOCAL double _PDCLIB_naive_etod( const char * s, char ** endptr );
+
+/* Conversion of hexadecimal notation to floating point */
+_PDCLIB_LOCAL double _PDCLIB_naive_ptod( const char * s, char ** endptr );
+
 /* -------------------------------------------------------------------------- */
-/* Declaration of helper functions (implemented in functions/_dtoa).          */
+/* Declaration of math helper functions (implemented in functions/math).      */
 /* -------------------------------------------------------------------------- */
 
-_PDCLIB_LOCAL void _PDCLIB_freedtoa( char * s );
-_PDCLIB_LOCAL char * _PDCLIB_dtoa( double dd, int mode, int ndigits, int * decpt, int * sign, char ** rve );
+int _PDCLIB_isnand( double x );
+int _PDCLIB_isnanf( float x );
+int _PDCLIB_isnanl( long double x );
+
+int _PDCLIB_isinfd( double x );
+int _PDCLIB_isinff( float x );
+int _PDCLIB_isinfl( long double x );
+
+int _PDCLIB_signbitd( double x );
+int _PDCLIB_signbitf( float x );
+int _PDCLIB_signbitl( long double x );
+
+int _PDCLIB_isfinited( double x );
+int _PDCLIB_isfinitef( float x );
+int _PDCLIB_isfinitel( long double x );
+
+int _PDCLIB_isnormald( double x );
+int _PDCLIB_isnormalf( float x );
+int _PDCLIB_isnormall( long double x );
+
+int _PDCLIB_fpclassifyd( double x );
+int _PDCLIB_fpclassifyf( float x );
+int _PDCLIB_fpclassifyl( long double x );
 
 /* -------------------------------------------------------------------------- */
 /* errno                                                                      */
@@ -610,149 +650,6 @@ _PDCLIB_LOCAL struct _PDCLIB_lc_collate_t * _PDCLIB_load_lc_collate( const char 
 _PDCLIB_LOCAL struct _PDCLIB_lc_ctype_t * _PDCLIB_load_lc_ctype( const char * path, const char * locale );
 _PDCLIB_LOCAL struct _PDCLIB_lc_time_t * _PDCLIB_load_lc_time( const char * path, const char * locale );
 _PDCLIB_LOCAL struct _PDCLIB_lc_messages_t * _PDCLIB_load_lc_messages( const char * path, const char * locale );
-
-/* -------------------------------------------------------------------------- */
-/* _PDCLIB_bigint_t support (required for floating point conversions)         */
-/* -------------------------------------------------------------------------- */
-
-/* Must be divisible by 32.                                                   */
-#define _PDCLIB_BIGINT_BITS 1024
-
-#if _PDCLIB_BIGINT_DIGIT_BITS == 32
-#define _PDCLIB_BIGINT_DIGIT_MAX UINT32_C( 0xFFFFFFFF )
-#define _PDCLIB_BIGINT_BASE ( UINT64_C(1) << _PDCLIB_BIGINT_DIGIT_BITS )
-typedef _PDCLIB_uint_least32_t _PDCLIB_bigint_digit_t;
-typedef _PDCLIB_uint_least64_t _PDCLIB_bigint_arith_t;
-typedef _PDCLIB_int_least64_t _PDCLIB_bigint_sarith_t;
-#elif _PDCLIB_BIGINT_DIGIT_BITS == 16
-#define _PDCLIB_BIGINT_DIGIT_MAX UINT16_C( 0xFFFF )
-#define _PDCLIB_BIGINT_BASE ( UINT32_C(1) << _PDCLIB_BIGINT_DIGIT_BITS )
-typedef _PDCLIB_uint_least16_t _PDCLIB_bigint_digit_t;
-typedef _PDCLIB_uint_least32_t _PDCLIB_bigint_arith_t;
-typedef _PDCLIB_int_least32_t _PDCLIB_bigint_sarith_t;
-#elif _PDCLIB_BIGINT_DIGIT_BITS == 8
-/* For testing purposes only. */
-#define _PDCLIB_BIGINT_DIGIT_MAX UINT8_C( 0xFF )
-#define _PDCLIB_BIGINT_BASE ( UINT16_C(1) << _PDCLIB_BIGINT_DIGIT_BITS )
-typedef _PDCLIB_uint_least8_t  _PDCLIB_bigint_digit_t;
-typedef _PDCLIB_uint_least16_t _PDCLIB_bigint_arith_t;
-typedef _PDCLIB_int_least16_t _PDCLIB_bigint_sarith_t;
-#else
-#error Only 16 or 32 supported for _PDCLIB_BIGINT_DIGIT_BITS.
-#endif
-
-/* How many "digits" a _PDCLIB_bigint_t holds.                                */
-#define _PDCLIB_BIGINT_DIGITS _PDCLIB_BIGINT_BITS / _PDCLIB_BIGINT_DIGIT_BITS
-
-/* Maximum number of characters needed for _PDCLIB_bigint_tostring()          */
-#define _PDCLIB_BIGINT_CHARS ( _PDCLIB_BIGINT_BITS / 4 + _PDCLIB_BIGINT_DIGITS + 2 )
-
-/* Type */
-/* ---- */
-
-typedef struct
-{
-    /* Least significant digit first */
-    _PDCLIB_bigint_digit_t data[ _PDCLIB_BIGINT_DIGITS ];
-    /* Number of digits used; zero value == zero size */
-    _PDCLIB_size_t size;
-} _PDCLIB_bigint_t;
-
-/* Initializer */
-/* ----------- */
-
-/* Sets a bigint to pow2( n ) */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint2( _PDCLIB_bigint_t * bigint, unsigned n );
-
-/* Sets a bigint to pow10( n ) */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint10( _PDCLIB_bigint_t * bigint, unsigned n );
-
-/* Sets a bigint from a 32bit input value. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint32( _PDCLIB_bigint_t * bigint, _PDCLIB_uint_least32_t value );
-
-/* Sets a bigint from two 32bit input values. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint64( _PDCLIB_bigint_t * bigint, _PDCLIB_uint_least32_t high, _PDCLIB_uint_least32_t low );
-
-/* Sets a bigint to the mantissa of a floating point value, as used rather
-   specifically in _PDCLIB_print_fp.c.
-*/
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_mant( _PDCLIB_bigint_t * bigint, unsigned char const * mant, _PDCLIB_size_t mant_dig );
-
-/* Sets a bigint from another bigint. (Copies only value->size digits, so it is
-   faster than a POD copy of a _PDCLIB_bigint_t in most cases.)
-*/
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint( _PDCLIB_bigint_t * _PDCLIB_restrict bigint, _PDCLIB_bigint_t const * _PDCLIB_restrict value );
-
-/* Comparison, Output */
-/* ------------------ */
-
-/* Compares two given bigint values. Returns 0 if lhs == rhs, a negative number
-   if lhs < rhs, and a positive number if lhs > rhs.
-*/
-_PDCLIB_LOCAL int _PDCLIB_bigint_cmp( _PDCLIB_bigint_t const * _PDCLIB_restrict lhs, _PDCLIB_bigint_t const * _PDCLIB_restrict rhs );
-
-/* Writes a hexadecimal representation of the given bigint into the given buffer.
-   Buffer should be at least _PDCLIB_BIGINT_CHARS in size.
-*/
-_PDCLIB_LOCAL char * _PDCLIB_bigint_tostring( _PDCLIB_bigint_t const * _PDCLIB_restrict value, char * _PDCLIB_restrict buffer );
-
-/* Operations (in-place) */
-/* --------------------- */
-
-/* Adds to a given bigint another given bigint. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_add( _PDCLIB_bigint_t * _PDCLIB_restrict lhs, _PDCLIB_bigint_t const * _PDCLIB_restrict rhs );
-
-/* Substracts from a given bigint another given bigint. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_sub( _PDCLIB_bigint_t * _PDCLIB_restrict lhs, _PDCLIB_bigint_t const * _PDCLIB_restrict rhs );
-
-/* Multiplies a given bigint with a given 32bit value. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_mul_dig( _PDCLIB_bigint_t * lhs, _PDCLIB_bigint_digit_t rhs );
-
-/* Divides a given bigint by a given 32bit value. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_div_dig( _PDCLIB_bigint_t * lhs, _PDCLIB_bigint_digit_t rhs );
-
-/* Shifts a given bigint left by a given count of bits. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_shl( _PDCLIB_bigint_t * lhs, unsigned rhs );
-
-/* Operations (into new bigint) */
-/* ---------------------------- */
-
-/* Multiplies a given bigint with another given bigint. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_mul( _PDCLIB_bigint_t * _PDCLIB_restrict result, _PDCLIB_bigint_t const * _PDCLIB_restrict lhs, _PDCLIB_bigint_t const * _PDCLIB_restrict rhs );
-
-/* Divides a given bigint by another given bigint. */
-_PDCLIB_LOCAL _PDCLIB_bigint_t * _PDCLIB_bigint_div( _PDCLIB_bigint_t * _PDCLIB_restrict result, _PDCLIB_bigint_t const * _PDCLIB_restrict lhs, _PDCLIB_bigint_t const * _PDCLIB_restrict rhs );
-
-/* Queries */
-/* ------- */
-
-/* Returns the log2() of a given bigint, i.e. the offset of the highest
-   bit set.
-*/
-_PDCLIB_LOCAL unsigned _PDCLIB_bigint_log2( _PDCLIB_bigint_t const * bigint );
-
-/* Returns the "inverse" log2() of a given bigint, i.e. the offset of the
-   lowest bit set.
-*/
-_PDCLIB_LOCAL unsigned _PDCLIB_bigint_invlog2( _PDCLIB_bigint_t const * bigint );
-
-/* FP Conversions */
-/* -------------- */
-
-/* Split a float into its integral components.
-   Returns 1 if value is negative, zero otherwise.
-*/
-_PDCLIB_LOCAL int _PDCLIB_float_split( float value, unsigned * exponent, _PDCLIB_bigint_t * significand );
-
-/* Split a double into its integral components.
-   Returns 1 if value is negative, zero otherwise.
-*/
-_PDCLIB_LOCAL int _PDCLIB_double_split( double value, unsigned * exponent, _PDCLIB_bigint_t * significand );
-
-/* Split a long double into its integral components.
-   Returns 1 if value is negative, zero otherwise.
-*/
-_PDCLIB_LOCAL int _PDCLIB_long_double_split( long double value, unsigned * exponent, _PDCLIB_bigint_t * significand );
 
 /* -------------------------------------------------------------------------- */
 /* Sanity checks                                                              */

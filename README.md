@@ -20,14 +20,14 @@ To have clangd work create a compile_flags.txt file with the same flags as CC
 1. run `make html > /path/to/project/index.html` (or `make js`) to bundle/minify libjs
 2. run a http server `esbuild --servedir=.` and pass program name + args similar to CLI `/?program&arg 1&arg 2` in the url.
 
-Builtin key shortcuts are alt+enter for fullscreen toggle, shift+enter for image scaling toggle
+Builtin key shortcuts are alt+enter for fullscreen toggle, shift+enter for image scaling toggle, Chrome performance drops with dev console open.
 
 ## Porting C programs
 1. add wasm platform to the codebase or just replace SDL, use `#include <js/glue.h>` to have access to JS functions
 3. pdclib doesn't implement posix, see [musl](https://git.musl-libc.org/cgit/musl/tree/src) for implementations
 4. call JS_setTimeout(ms) or JS_requestAnimationFrame() in any long running loops (main loop, ones waiting for input or http requests)
 
-## wasm sourcemaps (chrome only):
+## wasm sourcemaps (Chrome only):
 https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
 
 build your program with -g -O0 and optionally -lc-dbg instead of -lc for better stack traces
@@ -51,14 +51,14 @@ Optional:
 - emscriptens [wasm-sourcemap.py](https://github.com/emscripten-core/emscripten)
 - [wasm-strip](https://github.com/WebAssembly/wabt)
 - [wasm-opt](https://github.com/WebAssembly/binaryen): this one doesn't appear to do much if already using clang optimizations
-- compiler-rt (maybe wasi?): If you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` due to use of long doubles, which have to be stubbed out like __unordtf2
+
+experimental:
 - [wcc](https://github.com/tyfkda/xcc): alternative to clang+wasm-ld but lacking goto, no dwarf debuginfo and may have other issues compiling. use `/path/to/wcc -isystem=/path/to/libc/include -L/path/to/libc/lib -Wl,--export-table --stack-size=amount`.
 
 ## Limitations
-- no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h not syscalls.
-- Chrome performance drops with dev console open, Firefox can't fully make use of the wasm sourcemaps
-- TODO: webgpu/webworker + some events: touch/gamepad/glctx loss+restore etc https://developer.mozilla.org/en-US/docs/Web/Events
-- WIP: webgl2, pdclib can't format floats yet causing issues with EG printing fps and quake options/keys (use JS_logFloat, [stb_sprintf](https://github.com/nothings/stb/blob/master/stb_sprintf.h) or [nanoprintf](https://github.com/charlesnicholson/nanoprintf)
+- no proper file modes for writing/appending files etc, use JS_saveFile(). For sockets you have to use the functions in websocket.h
+- WIP: webgl2, TODO: webgpu/webworker + some events: touch/gamepad/glctx loss+restore etc https://developer.mozilla.org/en-US/docs/Web/Events
+- no compiler-rt which is required for use of long doubles etc: if you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` (some uses of ld have been swapped for doubles)
 
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, and most programs don't support saves load/download yet

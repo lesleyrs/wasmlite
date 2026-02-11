@@ -1,8 +1,4 @@
 export const math = {
-  // TODO check if these are correct
-  JS_isnan: (x) => Number.isNaN(x),
-  JS_isinf: (x) => x === Infinity || x === -Infinity,
-
   JS_acos: Math.acos,
   JS_acosh: Math.acosh,
   JS_asin: Math.asin,
@@ -22,9 +18,9 @@ export const math = {
   JS_expm1: Math.expm1,
   JS_fabs: Math.abs,
   JS_fdim: (x, y) => {
-    if (math.JS_isnan(x))
+    if (Number.isNaN(x))
       return x;
-    if (math.JS_isnan(y))
+    if (Number.isNaN(y))
       return y;
     return x > y ? x - y : 0;
   },
