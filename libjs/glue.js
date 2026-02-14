@@ -98,11 +98,11 @@ export const glue = {
     // canvas.id = 'canvas';
     canvas.width = width;
     canvas.height = height;
+
     canvas.tabIndex = -1;
     canvas.style.outline = 'none';
     canvas.style.userSelect = 'none';
     canvas.style.touchAction = 'manipulation';
-    canvas.style.imageRendering = 'pixelated'; // TODO pixelated canvas flag
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
 
@@ -129,6 +129,7 @@ export const glue = {
     document.addEventListener('keydown', e => {
       if (e.shiftKey && e.key === "Enter") {
         canvas.style.imageRendering = (canvas.style.imageRendering === 'pixelated') ? 'auto' : 'pixelated';
+        console.log('canvas.style.imageRendering:', canvas.style.imageRendering);
         e.preventDefault();
         e.stopPropagation();
       }
@@ -142,12 +143,13 @@ export const glue = {
         e.stopPropagation();
       }
     }, true);
+
     document.addEventListener('contextmenu', e => e.preventDefault());
   },
+  // TODO font size looks bad in bigger canvas/fullscreen even if the canvas itself looks fine
   JS_setFont: (font) => ctx.font = ptrToString(font),
   JS_measureTextWidth: (text) => ctx.measureText(ptrToString(text)).width,
   JS_fillStyle: (color) => ctx.fillStyle = ptrToString(color),
-  // TODO why do the fonts look so blurry/pixelated
   JS_fillText: (str, x, y) => ctx.fillText(ptrToString(str), x, y),
   JS_fillRect: (x, y, w, h) => ctx.fillRect(x, y, w, h),
   JS_strokeStyle: (color) => ctx.strokeStyle = ptrToString(color),
@@ -170,6 +172,25 @@ export const glue = {
   },
   JS_addBlurEventListener: (userdata, cb) => {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)(userdata));
+  },
+  JS_addResizeEventListener: (userdata, initialWidth, initialHeight, cb) => {
+    // NOTE window.innerWidth/innerHeight is sometimes slightly wrong causing scroll bar to appear
+    // NOTE canvas.style.width/height divided by dpr gets you pixel perfect canvas but dpr includes zoom %
+    // so we scale canvas in fullscreen only
+    document.addEventListener('fullscreenchange', () => {
+      const dpr = devicePixelRatio || 1;
+
+      if (document.fullscreenElement) {
+        console.log(document.fullscreenElement.clientWidth, document.fullscreenElement.clientHeight, dpr);
+        canvas.width = document.fullscreenElement.clientWidth * dpr;
+        canvas.height = document.fullscreenElement.clientHeight * dpr;
+      } else {
+        canvas.width = initialWidth;
+        canvas.height = initialHeight
+      }
+
+      exports.__indirect_function_table.get(cb)(userdata, canvas.width, canvas.height);
+    });
   },
   JS_addMouseEventListener: (userdata, cb, cb2, cb3) => {
     if (cb) {
@@ -219,6 +240,7 @@ function setWheelCB(name, userdata, cb) {
     switch (e.deltaMode) {
       case e.DOM_DELTA_PIXEL: // 100 pixels make up a step
         delta /= 100;
+        delta *= devicePixelRatio || 1;
         break;
       case e.DOM_DELTA_LINE: // 3 lines make up a step
         delta /= 3;
@@ -234,6 +256,9 @@ function setWheelCB(name, userdata, cb) {
   });
 }
 
+/**
+ * @param {MouseEvent} e
+ */
 function handleMouseMove(e, userdata, cb) {
     let rc;
     if (document.pointerLockElement === canvas) {
@@ -257,9 +282,7 @@ function handleMouseMove(e, userdata, cb) {
       const scaleY = canvas.height / displayHeight;
       rc = exports.__indirect_function_table.get(cb)(userdata, (e.x - offsetX) * scaleX, (e.y - offsetY) * scaleY);
     } else {
-      // create fresh rect to not deal with resize/scroll/orientationchange etc callbacks
-      const rect = canvas.getBoundingClientRect();
-      rc = exports.__indirect_function_table.get(cb)(userdata, e.x - rect.left, e.y - rect.top);
+      rc = exports.__indirect_function_table.get(cb)(userdata, e.offsetX, e.offsetY);
     }
     return rc;
 }

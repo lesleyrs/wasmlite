@@ -17,6 +17,7 @@ serve:
 
 cp:
 	$(MAKE) -s html > ../Client3/index.html
+	$(MAKE) -s html > ../playground/index.html
 	$(MAKE) -s html > ../forks/PL3D-KC/index.html
 	$(MAKE) -s html > ../forks/doomgeneric/doomgeneric/index.html
 	$(MAKE) -s html > ../forks/quakegeneric/source/index.html
