@@ -181,9 +181,8 @@ export const glue = {
       const dpr = devicePixelRatio || 1;
 
       if (document.fullscreenElement) {
-        console.log(document.fullscreenElement.clientWidth, document.fullscreenElement.clientHeight, dpr);
-        canvas.width = document.fullscreenElement.clientWidth * dpr;
-        canvas.height = document.fullscreenElement.clientHeight * dpr;
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
       } else {
         canvas.width = initialWidth;
         canvas.height = initialHeight
