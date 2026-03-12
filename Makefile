@@ -10,7 +10,7 @@ js:
 	@$(ESBUILD)
 
 html:
-	@(echo "<!DOCTYPE html><title>$(TITLE)</title><style>:root{color-scheme:light dark;}</style><script type='module'>"; $(ESBUILD); echo "</script>") | tr -d '\n'
+	@(echo "<!DOCTYPE html><title>$(TITLE)</title><style>:root{color-scheme:light dark;}</style><script type='module'>"; $(ESBUILD); echo "</script>")
 
 serve:
 	esbuild --servedir=.
