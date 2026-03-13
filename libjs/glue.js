@@ -12,6 +12,8 @@ let imageData;
 
 export const glue = {
   JS_logFloat: (float) => console.log(float), // NOTE: for double checking float values, pdclib may be inaccurate
+  JS_parseInt: (ptr) => parseInt(ptrToString(ptr)),
+  JS_parseFloat: (ptr) => parseFloat(ptrToString(ptr)),
   JS_eval: (ptr) => { const code = ptrToString(ptr); console.log("eval():\n", code); window.eval(code) },
   JS_alert: (ptr) => alert(ptrToString(ptr)),
   JS_saveFile: (namePtr, bufPtr, len) => {

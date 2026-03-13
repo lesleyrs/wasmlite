@@ -6,7 +6,9 @@
 #include "wasm.h"
 
 // UTIL:
-WASM_IMPORT(void, JS_logFloat, (float));
+WASM_IMPORT(void, JS_logFloat, (double x));
+WASM_IMPORT(int, JS_parseInt, (const char* x));
+WASM_IMPORT(double, JS_parseFloat, (const char* x));
 WASM_IMPORT(void, JS_eval, (const char* str));
 WASM_IMPORT(void, JS_alert, (const char* msg));
 WASM_IMPORT(void, JS_saveFile, (const char* name, uint8_t *buf, int len));
