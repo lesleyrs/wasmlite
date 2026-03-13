@@ -1,4 +1,4 @@
-import { refreshMemory, u8, u32, f32 } from './loader.js'
+import { memory } from './loader.js'
 import { ptrToString, allocString } from './utils.js'
 import { ctx as gl } from './glue.js'
 
@@ -15,6 +15,25 @@ const framebuffers = [];
 
 // TODO check return values, add missing gl funcs, fix performance issue?
 export const webgl2 = {
+  glTexImage2DBitmap: new WebAssembly.Suspending(async (target, level, internalformat, format, type, data, len, width, height, mimetype) => {
+    const bytes = memory.u8.subarray(data, data + len);
+    const blob = new Blob([bytes], { type: mimetype ? ptrToString(mimetype) : "image/png" });
+
+    // TODO Promise.all for multiple textures by temp storing bitmaps before calling texImage2D
+    const bmp = await createImageBitmap(blob, {
+      imageOrientation: 'flipY',
+      colorSpaceConversion: "none",
+      premultiplyAlpha: "none",
+    });
+
+    if (width && height) {
+      memory.u32[width >> 2] = bmp.width;
+      memory.u32[height >> 2] = bmp.height;
+    }
+
+    gl.texImage2D(target, level, internalformat, format, type, bmp);
+    bmp.close();
+  }),
   glGetString: (name) => {
     const str = gl.getParameter(name);
     return allocString(str);
@@ -44,13 +63,12 @@ export const webgl2 = {
     return nextId++;
   },
   glShaderSource: (id, count, ptr, lenPtr) => {
-    refreshMemory();
     const shader = shaders[id];
     let source = '';
 
     for (let i = 0; i < count; i++) {
-      const strPtr = u32[(ptr >> 2) + i];
-      const length = lenPtr ? u32[(lenPtr >> 2) + i] : undefined;
+      const strPtr = memory.u32[(ptr >> 2) + i];
+      const length = lenPtr ? memory.u32[(lenPtr >> 2) + i] : undefined;
       source += ptrToString(strPtr, length);
     }
 
@@ -93,8 +111,7 @@ export const webgl2 = {
   },
   glBufferData: (target, size, ptr, usage) => {
     if (ptr) {
-      refreshMemory();
-      const data = u8.subarray(ptr, ptr + size);
+      const data = memory.u8.subarray(ptr, ptr + size);
       gl.bufferData(target, data, usage);
     } else {
       gl.bufferData(target, size, usage);
@@ -116,7 +133,6 @@ export const webgl2 = {
   glDepthFunc: (func) => gl.depthFunc(func),
   glCullFace: (mode) => gl.cullFace(mode),
   glDrawElements: (mode, count, type, indices) => {
-    refreshMemory();
     gl.drawElements(mode, count, type, indices);
   },
   glBindAttribLocation: (id, index, name) => {
@@ -124,27 +140,24 @@ export const webgl2 = {
     gl.bindAttribLocation(program, index, ptrToString(name));
   },
   glGetProgramiv: (id, pname, params) => {
-    refreshMemory();
     const program = programs[id];
     gl.getProgramParameter(program, pname);
     // TODO
     if (params) {
-      u32[params >> 2] = 1;
+      memory.u32[params >> 2] = 1;
     }
   },
   glGetProgramInfoLog: (id, bufSize, length, infoLog) => {
-    refreshMemory();
     const program = programs[id];
     gl.getProgramInfoLog(program);
     // TODO
   },
   glGetShaderiv: (id, pname, params) => {
-    refreshMemory();
     const program = shaders[id];
     gl.getShaderParameter(program, pname);
     // TODO
     if (params) {
-      u32[params >> 2] = 1;
+      memory.u32[params >> 2] = 1;
     }
   },
   glDeleteProgram: (id) => {
@@ -171,10 +184,9 @@ export const webgl2 = {
     return nextId++;
   },
   glUniformMatrix4fv: (id, count, transpose, value) => {
-    refreshMemory();
     const uniform = uniforms.get(id) || null;
     const value32 = value >> 2;
-    gl.uniformMatrix4fv(uniform.location, transpose, f32.subarray(value32, value32 + count * 16));
+    gl.uniformMatrix4fv(uniform.location, transpose, memory.f32.subarray(value32, value32 + count * 16));
   },
   glActiveTexture: (texture) => gl.activeTexture(texture),
   glUniform1i: (id, v0) => {
@@ -200,8 +212,7 @@ export const webgl2 = {
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
     if (pixelsPtr) {
-      refreshMemory();
-      const pixels = u8.subarray(pixelsPtr, pixelsPtr + width * height * 4);
+      const pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + width * height * 4);
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     } else {
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, null);
@@ -209,16 +220,15 @@ export const webgl2 = {
   },
   glDeleteTextures: (n, ptr) => {
     for (let i = 0; i < n; i++) {
-      const id = u32[(ptr >> 2) + i];
+      const id = memory.u32[(ptr >> 2) + i];
       const tex = textures[id];
       gl.deleteTexture(tex);
       textures[id] = null;
     }
   },
   glDeleteVertexArrays: (n, ptr) => {
-    refreshMemory();
     for (let i = 0; i < n; i++) {
-      const id = u32[(ptr >> 2) + i];
+      const id = memory.u32[(ptr >> 2) + i];
       gl.deleteVertexArray(vaos[id]);
       vaos[id] = null;
     }
@@ -227,9 +237,8 @@ export const webgl2 = {
     gl.vertexAttribIPointer(index, size, type, stride, pointer);
   },
   glDeleteBuffers: (n, ptr) => {
-    refreshMemory();
     for (let i = 0; i < n; i++) {
-      const id = u32[(ptr >> 2) + i];
+      const id = memory.u32[(ptr >> 2) + i];
       gl.deleteBuffer(vbos[id]);
       vbos[id] = null;
     }
@@ -253,7 +262,7 @@ export const webgl2 = {
   },
   glDeleteFramebuffers: (n, ptr) => {
     for (let i = 0; i < n; i++) {
-      const id = u32[(ptr >> 2) + i];
+      const id = memory.u32[(ptr >> 2) + i];
       const framebuffer = framebuffers[id];
       gl.deleteFramebuffer(framebuffer);
       framebuffers[id] = null;
@@ -267,8 +276,7 @@ export const webgl2 = {
   },
   glBufferSubData: (target, offset, size, ptr) => {
     if (ptr) {
-      refreshMemory();
-      const data = u8.subarray(ptr, ptr + size);
+      const data = memory.u8.subarray(ptr, ptr + size);
       gl.bufferSubData(target, offset, data);
     } else {
       gl.bufferSubData(target, offset, null);
@@ -316,9 +324,8 @@ export const webgl2 = {
     gl.getUniformBlockIndex(program, ptrToString(uniformBlockName));
   },
   glVertexAttrib4fv: (index, v) => {
-    refreshMemory();
     const v32 = v >> 2;
-    gl.vertexAttrib4fv(index, f32.subarray(v32, v32 + count * 16));
+    gl.vertexAttrib4fv(index, memory.f32.subarray(v32, v32 + count * 16));
   },
   glDisableVertexAttribArray: (index) => {
     gl.disableVertexAttribArray(index);
@@ -326,13 +333,12 @@ export const webgl2 = {
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
-  refreshMemory();
   for (let i = 0; i < n; i++) {
     const buf = gl[createFunction]();
     if (buf) {
       const id = nextId++;
       objectTable[id] = buf;
-      u32[(ptr >> 2) + i] = id;
+      memory.u32[(ptr >> 2) + i] = id;
     }
   }
 }

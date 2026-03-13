@@ -456,6 +456,7 @@ WASM_IMPORT(void, glStencilMask, (GLuint mask));
 WASM_IMPORT(void, glStencilMaskSeparate, (GLenum face, GLuint mask));
 WASM_IMPORT(void, glStencilOp, (GLenum fail, GLenum zfail, GLenum zpass));
 WASM_IMPORT(void, glStencilOpSeparate, (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass));
+WASM_IMPORT(void, glTexImage2DBitmap, (GLenum target, GLint level, GLint internalformat, GLenum format, GLenum type, const GLubyte* data, GLuint count, GLsizei *width, GLsizei *height, const GLchar* mimetype));
 WASM_IMPORT(void, glTexImage2D, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels));
 WASM_IMPORT(void, glTexParameterf, (GLenum target, GLenum pname, GLfloat param));
 WASM_IMPORT(void, glTexParameterfv, (GLenum target, GLenum pname, const GLfloat *params));

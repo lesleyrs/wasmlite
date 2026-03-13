@@ -1,4 +1,4 @@
-import { refreshMemory, exports, u8, f32 } from './loader.js'
+import { exports, memory } from './loader.js'
 
 const workletSource = `
 class Processor extends AudioWorkletProcessor {
@@ -46,8 +46,7 @@ let worklet;
 
 export const audio = {
   JS_startAudio: async (buf, len) => {
-    refreshMemory();
-    const audio = u8.subarray(buf, buf + len);
+    const audio = memory.u8.subarray(buf, buf + len);
     // slice instead of subarray view or the memory be detached
     const arrayBuffer = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength);
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
@@ -80,20 +79,18 @@ export const audio = {
   JS_setAudioCallback: (cb, userdata, stream, bytes) => {
     worklet.port.onmessage = (e) => {
       if (e.data.request) {
-        refreshMemory();
         if (cb) {
           exports.__indirect_function_table.get(cb)(userdata, stream, bytes);
         }
         const stream32 = stream >> 2, samples32 = bytes >> 2;
-        const tmp = new Float32Array(f32.subarray(stream32, stream32 + samples32));
+        const tmp = new Float32Array(memory.f32.subarray(stream32, stream32 + samples32));
         worklet.port.postMessage({pcm: tmp}, [tmp.buffer]);
       }
     };
   },
   JS_queueAudio: (stream, bytes) => {
-    refreshMemory();
     const stream32 = stream >> 2, samples32 = bytes >> 2;
-    const tmp = new Float32Array(f32.subarray(stream32, stream32 + samples32));
+    const tmp = new Float32Array(memory.f32.subarray(stream32, stream32 + samples32));
     worklet.port.postMessage({pcm: tmp}, [tmp.buffer]);
   },
   JS_getQueuedAudioSize: new WebAssembly.Suspending(async () => {
@@ -119,8 +116,6 @@ export const audio = {
     }
 
     if (streamTime < now + streamLength) {
-      refreshMemory();
-
       const channels = 2;
       const frames = samples / (channels * Float32Array.BYTES_PER_ELEMENT);
       let buffer = streamCtx.createBuffer(channels, frames, streamCtx.sampleRate);
@@ -133,8 +128,8 @@ export const audio = {
       const outR = buffer.getChannelData(1);
       for (let i = 0; i < frames; i++) {
         const idx = (stream >> 2) + i * 2;
-        outL[i] = f32[idx];
-        outR[i] = f32[idx + 1];
+        outL[i] = memory.f32[idx];
+        outR[i] = memory.f32[idx + 1];
       }
 
       let source = streamCtx.createBufferSource();
@@ -146,8 +141,6 @@ export const audio = {
     }
   }, */
   /* JS_setAudioCallback: (cb, userdata, stream, samples) => {
-    refreshMemory();
-
     const channels = 2;
     const frames = samples / (channels * Float32Array.BYTES_PER_ELEMENT);
     const processor = streamCtx.createScriptProcessor(frames, 0, channels);
@@ -161,8 +154,8 @@ export const audio = {
       const outR = e.outputBuffer.getChannelData(1);
       for (let i = 0; i < frames; i++) {
         const idx = (stream >> 2) + i * 2;
-        outL[i] = f32[idx];
-        outR[i] = f32[idx + 1];
+        outL[i] = memory.f32[idx];
+        outR[i] = memory.f32[idx + 1];
       }
     };
 

@@ -20,21 +20,25 @@ export const exports = instance.exports;
 console.log(exports);
 
 /** @type {WebAssembly.Memory} */
-export const memory = exports.memory;
-let buffer = memory.buffer;
+const mem = exports.memory;
+let u8 = new Uint8Array(mem.buffer);
+let u32 = new Uint32Array(mem.buffer);
+let f32 = new Float32Array(mem.buffer);
 
-export let u8 = new Uint8Array(buffer);
-export let u32 = new Uint32Array(buffer);
-export let f32 = new Float32Array(buffer);
-
-// NOTE: this is needed as __builtin_wasm_memory_grow can be called anytime, so it can't be a callback in dlmalloc
-export function refreshMemory() {
-  if (buffer.byteLength === 0) {
-    buffer = memory.buffer;
-    u8 = new Uint8Array(buffer);
-    u32 = new Uint32Array(buffer);
-    f32 = new Float32Array(buffer);
-  }
+// NOTE: this is needed as __builtin_wasm_memory_grow/exports.memory.grow() can be called anytime, so it can't be a callback in dlmalloc
+export const memory = {
+  get u8() {
+    if (u8.buffer !== mem.buffer) u8 = new Uint8Array(mem.buffer);
+    return u8;
+  },
+  get u32() {
+    if (u32.buffer !== mem.buffer) u32 = new Uint32Array(mem.buffer);
+    return u32;
+  },
+  get f32() {
+    if (f32.buffer !== mem.buffer) f32 = new Float32Array(mem.buffer);
+    return f32;
+  },
 }
 
 export const decoder = new TextDecoder();

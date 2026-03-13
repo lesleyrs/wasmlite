@@ -1,4 +1,4 @@
-import { exports, u8, refreshMemory } from './loader.js'
+import { exports, memory } from './loader.js'
 import { ptrToString } from './utils.js'
 
 class SocketBuffer {
@@ -85,20 +85,18 @@ export const websocket = {
     sockets.get(fd).close();
   },
   send: (fd, data, len) => {
-    refreshMemory();
-    const buf = u8.subarray(data, data + len);
+    const buf = memory.u8.subarray(data, data + len);
     sockets.get(fd).send(buf);
     return len;
   },
   // NOTE: always nonblocking
   // recv: new WebAssembly.Suspending(async (fd, buf, len, flags) => await new Promise((resolve, reject) => {
   recv: (fd, buf, len, flags) => {
-    refreshMemory();
     const bytes = socketBuffers.get(fd).read(len);
     if (!bytes) {
       return -1;
     }
-    u8.set(bytes, buf);
+    memory.u8.set(bytes, buf);
     return bytes.length;
   },
 }

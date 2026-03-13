@@ -1,15 +1,14 @@
-import { u8, refreshMemory } from './loader.js'
+import { memory } from './loader.js'
 import { ptrToString } from './utils.js'
 
 // NOTE: only used for rs2 client
 
 export function rsaCrypt(exp, mod, temp, length, enc) {
-  refreshMemory();
-  const bigRaw = bytesToBigInt(u8.subarray(temp, temp + length));
+  const bigRaw = bytesToBigInt(memory.u8.subarray(temp, temp + length));
   const bigEnc = bigIntModPow(bigRaw, BigInt(ptrToString(exp)), BigInt(ptrToString(mod)));
   const rawEnc = bigIntToBytes(bigEnc);
 
-  u8.set(rawEnc, enc);
+  memory.u8.set(rawEnc, enc);
   return rawEnc.length;
 }
 

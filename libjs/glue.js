@@ -1,4 +1,4 @@
-import { exports, encoder, u8, u32, refreshMemory } from './loader.js'
+import { exports, encoder, memory } from './loader.js'
 import { ptrToString } from './utils.js'
 
 /** @type {HTMLCanvasElement} */
@@ -17,8 +17,7 @@ export const glue = {
   JS_eval: (ptr) => { const code = ptrToString(ptr); console.log("eval():\n", code); window.eval(code) },
   JS_alert: (ptr) => alert(ptrToString(ptr)),
   JS_saveFile: (namePtr, bufPtr, len) => {
-    refreshMemory();
-    const sub = u8.subarray(bufPtr, bufPtr + len);
+    const sub = memory.u8.subarray(bufPtr, bufPtr + len);
     const blob = new Blob([sub], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -54,16 +53,15 @@ export const glue = {
     const ptr = exports.malloc(data.byteLength);
     if (!ptr) return 0;
 
-    refreshMemory();
-    u8.set(new Uint8Array(data), ptr);
+    memory.u8.set(new Uint8Array(data), ptr);
     if (lenPtr) {
-      u32[lenPtr >> 2] = data.byteLength;
+      memory.u32[lenPtr >> 2] = data.byteLength;
     }
 
     if (namePtr) {
-      u8.set(enc, str);
-      u8[str + enc.length] = 0;
-      u32[namePtr >> 2] = str;
+      memory.u8.set(enc, str);
+      memory.u8[str + enc.length] = 0;
+      memory.u32[namePtr >> 2] = str;
     }
     return ptr;
   }),
@@ -78,9 +76,8 @@ export const glue = {
   JS_DateNow: () => Date.now(),
   JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
-    refreshMemory();
     const ptr32 = ptr >> 2;
-    const pixels32 = u32.subarray(ptr32, canvas.width * canvas.height + ptr32);
+    const pixels32 = memory.u32.subarray(ptr32, canvas.width * canvas.height + ptr32);
     for (let i = 0; i < pixels32.length; i++) {
       pixels32[i] |= 0xff000000;
     }
@@ -89,8 +86,7 @@ export const glue = {
     ctx.putImageData(imageData, 0, 0);
   },
   JS_setPixelsAlpha: (ptr) => {
-    refreshMemory();
-    const pixels = u8.subarray(ptr, canvas.width * canvas.height * 4 + ptr);
+    const pixels = memory.u8.subarray(ptr, canvas.width * canvas.height * 4 + ptr);
     imageData.data.set(pixels);
     ctx.putImageData(imageData, 0, 0);
   },
