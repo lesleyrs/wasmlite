@@ -7,7 +7,7 @@
 
 // UTIL:
 WASM_IMPORT(void, JS_logFloat, (double x));
-WASM_IMPORT(int, JS_parseInt, (const char* x, size_t len));
+WASM_IMPORT(int, JS_parseInt, (const char* x, size_t len, int base));
 WASM_IMPORT(double, JS_parseFloat, (const char* x, size_t len));
 WASM_IMPORT(void, JS_eval, (const char* str));
 WASM_IMPORT(void, JS_alert, (const char* msg));
