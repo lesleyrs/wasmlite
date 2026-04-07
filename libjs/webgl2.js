@@ -15,13 +15,13 @@ const framebuffers = [];
 
 // TODO check return values, add missing gl funcs, fix performance issue?
 export const webgl2 = {
-  glTexImage2DBitmap: new WebAssembly.Suspending(async (target, level, internalformat, format, type, data, len, width, height, mimetype) => {
+  glTexImage2DBitmap: new WebAssembly.Suspending(async (target, level, internalformat, format, type, data, len, width, height, mimetype, flipY) => {
     const bytes = memory.u8.subarray(data, data + len);
     const blob = new Blob([bytes], { type: mimetype ? ptrToString(mimetype) : "image/png" });
 
     // TODO Promise.all for multiple textures by temp storing bitmaps before calling texImage2D
     const bmp = await createImageBitmap(blob, {
-      imageOrientation: 'flipY',
+      imageOrientation: flipY ? 'flipY' : 'none',
       colorSpaceConversion: "none",
       premultiplyAlpha: "none",
     });
