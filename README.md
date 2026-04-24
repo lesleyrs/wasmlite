@@ -70,7 +70,7 @@ In some forks the non-wasm targets haven't been kept in a working state, and mos
 - [Peanut-GB](https://github.com/lesleyrs/Peanut-GB)
 - [agbemu](https://github.com/lesleyrs/agbemu)
 - [ntremu](https://github.com/lesleyrs/ntremu) - only runs decrypted roms, need to provide firmware.bin or touch won't work
-- [minecraft-weekend](https://github.com/lesleyrs/minecraft-weekend) - uses WebGL2 > OpenGL ES 3.0 bindings
+- [minecraft-weekend](https://github.com/lesleyrs/minecraft-weekend) - uses OpenGL ES 3.0 > WebGL2 bindings
 
 These emulators are not so accurate but still serve as examples
 - [gdkGBA](https://github.com/lesleyrs/gdkGBA)
