@@ -76,12 +76,10 @@ export const glue = {
   JS_DateNow: () => Date.now(),
   JS_performanceNow: () => performance.now(),
   JS_setPixels: (ptr) => {
-    const ptr32 = ptr >> 2;
-    const pixels32 = memory.u32.subarray(ptr32, canvas.width * canvas.height + ptr32);
-    for (let i = 0; i < pixels32.length; i++) {
-      pixels32[i] |= 0xff000000;
+    const pixels = memory.u8.subarray(ptr, canvas.width * canvas.height * 4 + ptr);
+    for (let i = 3; i < pixels.length; i += 4) {
+      pixels[i] = 0xff;
     }
-    const pixels = new Uint8ClampedArray(pixels32.buffer, pixels32.byteOffset, pixels32.byteLength);
     imageData.data.set(pixels);
     ctx.putImageData(imageData, 0, 0);
   },
