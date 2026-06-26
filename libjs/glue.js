@@ -108,6 +108,7 @@ export const glue = {
 
     // document.body.style.margin = 0; // TODO zero body margin canvas flag
     document.body.appendChild(canvas);
+    canvas.focus();
 
     const ctxString = ptrToString(context);
     // disable antialias by default to align better with desktop TODO allow setting attributes
