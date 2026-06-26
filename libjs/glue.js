@@ -11,6 +11,9 @@ export let ctx;
 let imageData;
 
 export const glue = {
+  JS_DevicePixelRatio: () => devicePixelRatio,
+  JS_InnerWidth: () => innerWidth,
+  JS_InnerHeight: () => innerHeight,
   JS_logFloat: (float) => console.log(float), // NOTE: for double checking float values, pdclib may be inaccurate
   JS_parseInt: (ptr, len, base) => parseInt(ptrToString(ptr, len), base),
   JS_parseFloat: (ptr, len) => parseFloat(ptrToString(ptr, len)),

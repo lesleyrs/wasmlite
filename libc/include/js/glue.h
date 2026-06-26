@@ -6,6 +6,9 @@
 #include "wasm.h"
 
 // UTIL:
+WASM_IMPORT(float, JS_DevicePixelRatio, (void));
+WASM_IMPORT(int, JS_InnerWidth, (void));
+WASM_IMPORT(int, JS_InnerHeight, (void));
 WASM_IMPORT(void, JS_logFloat, (double x));
 WASM_IMPORT(int, JS_parseInt, (const char* x, size_t len, int base));
 WASM_IMPORT(double, JS_parseFloat, (const char* x, size_t len));
