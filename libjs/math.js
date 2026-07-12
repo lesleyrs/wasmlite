@@ -43,8 +43,15 @@ export const math = {
   // JS_logb:,
   // JS_lrint:,
   // JS_lround:,
-  JS_modf: Math.modf,
-  JS_nan: (s) => NaN,
+  JS_modf: (x, iptr) => {
+    const int = Math.trunc(x);
+    if (iptr) {
+      memory.f64[iptr >> 3] = int;
+    }
+
+    return x - int;
+  },
+  JS_nan: (_s) => NaN,
   // JS_nearbyint:,
   // JS_nextafter:,
   // JS_nexttoward,

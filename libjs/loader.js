@@ -24,6 +24,7 @@ const mem = exports.memory;
 let u8 = new Uint8Array(mem.buffer);
 let u32 = new Uint32Array(mem.buffer);
 let f32 = new Float32Array(mem.buffer);
+let f64 = new Float64Array(mem.buffer);
 
 // NOTE: this is needed as __builtin_wasm_memory_grow/exports.memory.grow() can be called anytime, so it can't be a callback in dlmalloc
 export const memory = {
@@ -38,6 +39,10 @@ export const memory = {
   get f32() {
     if (f32.buffer !== mem.buffer) f32 = new Float32Array(mem.buffer);
     return f32;
+  },
+  get f64() {
+    if (f64.buffer !== mem.buffer) f64 = new Float64Array(mem.buffer);
+    return f64;
   },
 }
 
