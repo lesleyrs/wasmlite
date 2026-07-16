@@ -47,6 +47,10 @@ export function _exit(status) {
 
 export function write(fd, buf, count) {
   const sub = memory.u8.subarray(buf, buf + count)
+  if (count === 0) {
+    return 0;
+  }
+
   if (fd === stdout) {
     const str = decoder.decode(sub);
     console.log(str);
