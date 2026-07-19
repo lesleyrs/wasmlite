@@ -17,6 +17,7 @@ export const glue = {
   JS_logFloat: (float) => console.log(float), // NOTE: for double checking float values, pdclib may be inaccurate
   JS_parseInt: (ptr, len, base) => parseInt(ptrToString(ptr, len), base),
   JS_parseFloat: (ptr, len) => parseFloat(ptrToString(ptr, len)),
+  JS_open: (url) => open(ptrToString(url)),
   JS_eval: (ptr) => { const code = ptrToString(ptr); console.log("eval():\n", code); window.eval(code) },
   JS_alert: (ptr) => alert(ptrToString(ptr)),
   JS_saveFile: (namePtr, bufPtr, len) => {

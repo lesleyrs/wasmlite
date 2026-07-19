@@ -3,9 +3,14 @@ import { ptrToString } from './utils.js'
 
 // NOTE: only used for rs2 client
 
-export function rsaCrypt(exp, mod, temp, length, enc) {
+export function rsaCrypt(exp, mod, temp, length, enc, prefix0x) {
+  const expStr = ptrToString(exp);
+  const modStr = ptrToString(mod);
+  const bigExp = BigInt(prefix0x ? "0x" + expStr : expStr);
+  const bigMod = BigInt(prefix0x ? "0x" + modStr : modStr);
+
   const bigRaw = bytesToBigInt(memory.u8.subarray(temp, temp + length));
-  const bigEnc = bigIntModPow(bigRaw, BigInt(ptrToString(exp)), BigInt(ptrToString(mod)));
+  const bigEnc = bigIntModPow(bigRaw, bigExp, bigMod);
   const rawEnc = bigIntToBytes(bigEnc);
 
   memory.u8.set(rawEnc, enc);
