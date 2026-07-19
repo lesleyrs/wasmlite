@@ -17,6 +17,7 @@ serve:
 
 cp:
 	$(MAKE) -s html > ../Client3/index.html
+	$(MAKE) -s html > ../classic/rsc-c/index.html
 	$(MAKE) -s html > ../playground/index.html
 	$(MAKE) -s html > ../soft/index.html
 	$(MAKE) -s html > ../forks/PL3D-KC/index.html
