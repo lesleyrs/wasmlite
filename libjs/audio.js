@@ -45,13 +45,27 @@ let streamCtx;
 let worklet;
 
 export const audio = {
+  JS_playPCM: (buf, channels, samples, samplerate) => {
+    const buf32 = buf >> 2;
+    const pcm = memory.f32.subarray(buf32, buf32 + samples);
+
+    const buffer = audioCtx.createBuffer(channels, samples, samplerate);
+    buffer.copyToChannel(pcm, 0);
+
+    let source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioGain);
+    source.start();
+  },
   JS_startAudio: async (buf, len) => {
     const audio = memory.u8.subarray(buf, buf + len);
+
     // slice instead of subarray view or the memory be detached
     const arrayBuffer = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength);
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+
     let source = audioCtx.createBufferSource();
-    source.buffer = audioBuffer;
+    source.buffer = buffer;
     source.connect(audioGain);
     source.start();
   },

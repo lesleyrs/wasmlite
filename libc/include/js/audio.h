@@ -3,6 +3,7 @@
 
 #include "wasm.h"
 
+WASM_IMPORT(void, JS_playPCM, (float* buf, int channels, int samples, int samplerate));
 WASM_IMPORT(void, JS_startAudio, (uint8_t *buf, int len));
 WASM_IMPORT(void, JS_setAudioVolume, (double vol));
 
