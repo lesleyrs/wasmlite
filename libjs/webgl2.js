@@ -330,6 +330,9 @@ export const webgl2 = {
   glDisableVertexAttribArray: (index) => {
     gl.disableVertexAttribArray(index);
   },
+  glGetError: () => {
+    return gl.getError();
+  }
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
