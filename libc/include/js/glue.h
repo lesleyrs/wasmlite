@@ -6,6 +6,7 @@
 #include "wasm.h"
 
 // UTIL:
+WASM_IMPORT(uint32_t, JS_getTotalMemoryUsage, (void));
 WASM_IMPORT(float, JS_DevicePixelRatio, (void));
 WASM_IMPORT(int, JS_InnerWidth, (void));
 WASM_IMPORT(int, JS_InnerHeight, (void));

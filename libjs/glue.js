@@ -11,6 +11,7 @@ export let ctx;
 let imageData;
 
 export const glue = {
+  JS_getTotalMemoryUsage: () => memory.u8.byteLength,
   JS_DevicePixelRatio: () => devicePixelRatio,
   JS_InnerWidth: () => innerWidth,
   JS_InnerHeight: () => innerHeight,
