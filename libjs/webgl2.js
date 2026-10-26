@@ -212,7 +212,24 @@ export const webgl2 = {
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
     if (pixelsPtr) {
-      const pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + width * height * 4);
+      const components =
+        format === gl.RGBA ? 4 :
+        format === gl.RGB ? 3 :
+        0;
+      if (components === 0) {
+        console.error("Unsupported components format: ", format);
+      }
+
+      let pixels;
+      const count = width * height * components;
+      if (type === gl.FLOAT) {
+        const pixelPtr32 = pixelsPtr >> 2;
+        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
+      } else if (type === gl.UNSIGNED_BYTE) {
+        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
+      } else {
+        console.error("Unsupported texture data type: ", type);
+      }
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     } else {
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, null);
@@ -332,7 +349,10 @@ export const webgl2 = {
   },
   glGetError: () => {
     return gl.getError();
-  }
+  },
+  glGetIntegerv: (pname, ptr) => {
+    memory.u32[ptr >> 2] = gl.getParameter(pname);
+  },
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
