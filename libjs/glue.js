@@ -108,7 +108,7 @@ export const glue = {
     canvas.style.display = 'block';
     canvas.style.margin = 'auto';
 
-    // document.body.style.margin = 0; // TODO zero body margin canvas flag
+    document.body.style.margin = 0; // TODO zero body margin canvas flag
     document.body.appendChild(canvas);
     canvas.focus();
 
