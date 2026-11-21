@@ -84,7 +84,7 @@ export const open = new WebAssembly.Suspending(async function(pathPtr, flags, mo
   try {
     // const response = await fetch(url, { cache: 'no-cache' });
     const response = await fetch(url, { cache: 'no-store' });
-    console.log(response);
+    console.info(response.url, response.statusText);
     if (!response.ok) return -1;
     const buffer = new Uint8Array(await response.arrayBuffer());
 

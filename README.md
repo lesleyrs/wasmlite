@@ -60,6 +60,10 @@ experimental:
 - WIP: webgl2, TODO: webgpu/webworker + some events: touch/gamepad/glctx loss+restore etc https://developer.mozilla.org/en-US/docs/Web/Events
 - no compiler-rt which is required for use of long doubles etc: if you provide this to clang you won't need to pass -nodefaultlibs -lc but it has to be placed in system path? Without this you may get undefined symbol errors especially with `-lc-dbg` (some uses of ld have been swapped for doubles)
 
+## Notes
+Firefox with `layout.frame-rate` = 0 in about:config still caps fps at 120, chrome is actually uncapped with `--args --disable-frame-rate-limit`
+Chrome fetches files much faster at 127.0.0.1 compared to localhost?
+
 ## Ports
 In some forks the non-wasm targets haven't been kept in a working state, and most programs don't support saves load/download yet
 - [Client3](https://github.com/lesleyrs/Client3)

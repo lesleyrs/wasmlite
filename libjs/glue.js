@@ -121,6 +121,15 @@ export const glue = {
 
     if (ctxString === '2d') {
       imageData = ctx.createImageData(canvas.width, canvas.height);
+    } else if (ctxString === 'webgl2' || ctxString === 'webgl') {
+      optimizeAssumingFlatsHaveSameFirstAndLastData(ctx);
+
+      const debugInfo = ctx.getExtension('WEBGL_debug_renderer_info');
+      if (debugInfo) {
+        const vendor = ctx.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+        const renderer = ctx.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        console.info(`WebGL2:\n  vendor: ${vendor}\n  renderer: ${renderer}\n`);
+      }
     }
 
     canvas.addEventListener('touchstart', () => {
@@ -234,6 +243,14 @@ function setMainLoop(cb, arg, fps) {
   }
 
   frame(last);
+}
+
+// https://registry.khronos.org/webgl/extensions/WEBGL_provoking_vertex/
+function optimizeAssumingFlatsHaveSameFirstAndLastData(gl) {
+  const epv = gl.getExtension('WEBGL_provoking_vertex');
+  if (epv) {
+    epv.provokingVertexWEBGL(epv.FIRST_VERTEX_CONVENTION_WEBGL);
+  }
 }
 
 function setWheelCB(name, userdata, cb) {

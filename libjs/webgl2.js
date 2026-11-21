@@ -366,6 +366,9 @@ export const webgl2 = {
   glDrawArraysInstanced: (mode, first, count, instanceCount) => {
     gl.drawArraysInstanced(mode, first, count, instanceCount);
   },
+  glIsEnabled: (cap) => {
+    return gl.isEnabled(cap);
+  }
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
