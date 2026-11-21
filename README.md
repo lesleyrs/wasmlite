@@ -33,24 +33,17 @@ build your program with -g -O0 and optionally -lc-dbg instead of -lc for better 
 ### dwarf debuginfo (Chrome only):
 https://developer.chrome.com/blog/wasm-debugging-2020
 
-Currently requires the BETA extension linked in the blog, and pass `-fdebug-compilation-dir='..' as shown in the video if you have an output dir`
+Currently requires the BETA extension linked in the blog, and pass `-fdebug-compilation-dir='..'` as shown in the video if you have an output dir, but libc and any other lib won't be found unlike with sourcemaps.
 
 ### wasm sourcemaps from dwarf:
 https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
 ```
 git clone https://github.com/emscripten-core/emscripten.git
-```
-```
 ../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump=/usr/bin/llvm-dwarfdump
-```
-or
-```
-llvm-dwarfdump -a out.wasm > out.wasm.dwarf
-../emscripten/tools/wasm-sourcemap.py out.wasm -w out.wasm -p $(CURDIR) -s -u ./out.wasm.map -o out.wasm.map --dwarfdump-output=out.wasm.dwarf
 ```
 If your systems llvm-dwarfdump isn't compatible with the latest wasm-sourcemap.py, you can also use `emsdk/upstream/bin/llvm-dwarfdump`.
 
-After this it will automatically load the sourcemap linked in the modified wasm file.
+After this it will automatically load the sourcemap linked in the modified wasm file. Except on chrome you also need to `llvm-strip --strip-debug` to remove debug info or it will use EmbeddedDWARF by default.
 
 ## Tools
 Optional:
