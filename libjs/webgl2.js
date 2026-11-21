@@ -357,6 +357,12 @@ export const webgl2 = {
   glGetIntegerv: (pname, ptr) => {
     memory.u32[ptr >> 2] = gl.getParameter(pname);
   },
+  glGetBufferParameteriv: (target, pname, ptr) => {
+    memory.u32[ptr >> 2] = gl.getBufferParameter(target, pname);
+  },
+  glGetVertexAttribiv: (index, pname, ptr) => {
+    memory.u32[ptr >> 2] = gl.getVertexAttrib(index, pname);
+  }
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
