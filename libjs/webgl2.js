@@ -201,6 +201,10 @@ export const webgl2 = {
     const uniform = uniforms.get(id) || null;
     gl.uniform2f(uniform.location, v0, v1);
   },
+  glUniform3f: (id, v0, v1, v2) => {
+    const uniform = uniforms.get(id) || null;
+    gl.uniform3f(uniform.location, v0, v1, v2);
+  },
   glUniform4f: (id, v0, v1, v2, v3) => {
     const uniform = uniforms.get(id) || null;
     gl.uniform4f(uniform.location, v0, v1, v2, v3);

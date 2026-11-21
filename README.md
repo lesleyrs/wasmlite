@@ -27,10 +27,16 @@ Builtin key shortcuts are alt+enter for fullscreen toggle, shift+enter for image
 3. pdclib doesn't implement posix, see [musl](https://git.musl-libc.org/cgit/musl/tree/src) for implementations
 4. call JS_setTimeout(ms) or JS_requestAnimationFrame() in any long running loops (main loop, ones waiting for input or http requests)
 
-## wasm sourcemaps (Chrome only):
-https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
-
+## Debugging
 build your program with -g -O0 and optionally -lc-dbg instead of -lc for better stack traces
+
+### dwarf debuginfo (Chrome only):
+https://developer.chrome.com/blog/wasm-debugging-2020
+
+Currently requires the BETA extension linked in the blog, and pass `-fdebug-compilation-dir='..' as shown in the video if you have an output dir`
+
+### wasm sourcemaps from dwarf:
+https://medium.com/oasislabs/webassembly-debugging-bec0aa93f8c6
 ```
 git clone https://github.com/emscripten-core/emscripten.git
 ```
@@ -44,8 +50,9 @@ llvm-dwarfdump -a out.wasm > out.wasm.dwarf
 ```
 If your systems llvm-dwarfdump isn't compatible with the latest wasm-sourcemap.py, you can also use `emsdk/upstream/bin/llvm-dwarfdump`.
 
-After this chrome will automatically load the sourcemap linked in the modified wasm file.
+After this it will automatically load the sourcemap linked in the modified wasm file.
 
+## Tools
 Optional:
 - bundler/minifier/http server: [esbuild](https://esbuild.github.io/getting-started/#other-ways-to-install), npm/node are not needed!
 - emscriptens [wasm-sourcemap.py](https://github.com/emscripten-core/emscripten)
