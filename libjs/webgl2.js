@@ -362,7 +362,10 @@ export const webgl2 = {
   },
   glGetVertexAttribiv: (index, pname, ptr) => {
     memory.u32[ptr >> 2] = gl.getVertexAttrib(index, pname);
-  }
+  },
+  glDrawArraysInstanced: (mode, first, count, instanceCount) => {
+    gl.drawArraysInstanced(mode, first, count, instanceCount);
+  },
 };
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
