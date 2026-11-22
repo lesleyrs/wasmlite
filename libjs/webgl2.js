@@ -15,6 +15,13 @@ const framebuffers = [];
 
 // TODO check return values, add missing gl funcs, fix performance issue?
 export const webgl2 = {
+  // non standard
+  glPolygonMode: (face, mode) => {
+    const polygonMode = gl.getExtension("WEBGL_polygon_mode");
+    if (polygonMode) {
+      polygonMode.polygonModeWEBGL(face, mode);
+    }
+  },
   glTexImage2DBitmap: new WebAssembly.Suspending(async (target, level, internalformat, format, type, data, len, width, height, mimetype, flipY) => {
     const bytes = memory.u8.subarray(data, data + len);
     const blob = new Blob([bytes], { type: mimetype ? ptrToString(mimetype) : "image/png" });
@@ -34,6 +41,7 @@ export const webgl2 = {
     gl.texImage2D(target, level, internalformat, format, type, bmp);
     bmp.close();
   }),
+  // end non standard
   glGetString: (name) => {
     const str = gl.getParameter(name);
     return allocString(str);

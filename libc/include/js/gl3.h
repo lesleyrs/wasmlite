@@ -351,6 +351,17 @@ typedef khronos_uint8_t GLubyte;
 #define GL_RENDERBUFFER_BINDING           0x8CA7
 #define GL_MAX_RENDERBUFFER_SIZE          0x84E8
 #define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
+
+// non standard
+#define GL_LINE					0x1B01
+#define GL_FILL					0x1B02
+#define GL_POLYGON_MODE				0x0B40
+#define GL_POLYGON_OFFSET_LINE			0x2A02
+WASM_IMPORT(void, glPolygonMode, (GLenum face, GLenum mode));
+
+WASM_IMPORT(void, glTexImage2DBitmap, (GLenum target, GLint level, GLint internalformat, GLenum format, GLenum type, const GLubyte* data, GLuint count, GLsizei *width, GLsizei *height, const GLchar* mimetype, GLboolean flipY));
+//
+
 WASM_IMPORT(void, glActiveTexture, (GLenum texture));
 WASM_IMPORT(void, glAttachShader, (GLuint program, GLuint shader));
 WASM_IMPORT(void, glBindAttribLocation, (GLuint program, GLuint index, const GLchar *name));
@@ -456,7 +467,6 @@ WASM_IMPORT(void, glStencilMask, (GLuint mask));
 WASM_IMPORT(void, glStencilMaskSeparate, (GLenum face, GLuint mask));
 WASM_IMPORT(void, glStencilOp, (GLenum fail, GLenum zfail, GLenum zpass));
 WASM_IMPORT(void, glStencilOpSeparate, (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass));
-WASM_IMPORT(void, glTexImage2DBitmap, (GLenum target, GLint level, GLint internalformat, GLenum format, GLenum type, const GLubyte* data, GLuint count, GLsizei *width, GLsizei *height, const GLchar* mimetype, GLboolean flipY));
 WASM_IMPORT(void, glTexImage2D, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels));
 WASM_IMPORT(void, glTexParameterf, (GLenum target, GLenum pname, GLfloat param));
 WASM_IMPORT(void, glTexParameterfv, (GLenum target, GLenum pname, const GLfloat *params));
