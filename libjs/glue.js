@@ -4,7 +4,7 @@ import { ptrToString } from './utils.js'
 /** @type {HTMLCanvasElement} */
 let canvas;
 // NOTE: lsp only works well with 1 type at a time for showing docs
-/** @type {CanvasRenderingContext2D | WebGLRenderingContext  | WebGL2RenderingContext | GPUCanvasContext | ImageBitmapRenderingContext} */
+/** @type {CanvasRenderingContext2D | WebGLRenderingContext | WebGL2RenderingContext | GPUCanvasContext | ImageBitmapRenderingContext} */
 /** @type {WebGL2RenderingContext} */
 export let ctx;
 /** @type {ImageData} */
@@ -12,7 +12,7 @@ let imageData;
 
 export const glue = {
   JS_getTotalMemoryUsage: () => memory.u8.byteLength,
-  JS_DevicePixelRatio: () => devicePixelRatio,
+  JS_DevicePixelRatio: () => devicePixelRatio || 1,
   JS_InnerWidth: () => innerWidth,
   JS_InnerHeight: () => innerHeight,
   JS_logFloat: (float) => console.log(float), // NOTE: for double checking float values, pdclib may be inaccurate
@@ -113,15 +113,13 @@ export const glue = {
     canvas.focus();
 
     const ctxString = ptrToString(context);
-    // disable antialias by default to align better with desktop TODO allow setting attributes
-    ctx = canvas.getContext(ctxString, { antialias: false, alpha: false });
-    if (!ctx) {
-      throw new Error(`${ctxString} not supported`);
-    }
-
     if (ctxString === '2d') {
+      ctx = canvas.getContext(ctxString, { alpha: false });
       imageData = ctx.createImageData(canvas.width, canvas.height);
     } else if (ctxString === 'webgl2' || ctxString === 'webgl') {
+      // disable antialias by default to align better with desktop
+      // TODO allow setting attributes
+      ctx = canvas.getContext(ctxString, { antialias: false, alpha: false });
       optimizeAssumingFlatsHaveSameFirstAndLastData(ctx);
 
       const debugInfo = ctx.getExtension('WEBGL_debug_renderer_info');
@@ -130,6 +128,11 @@ export const glue = {
         const renderer = ctx.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
         console.info(`WebGL2:\n  vendor: ${vendor}\n  renderer: ${renderer}\n`);
       }
+    } else if (ctxString === 'webgpu') {
+      ctx = canvas.getContext(ctxString);
+    }
+    if (!ctx) {
+      throw new Error(`${ctxString} not supported`);
     }
 
     canvas.addEventListener('touchstart', () => {
@@ -186,7 +189,7 @@ export const glue = {
     canvas.addEventListener('blur', () => exports.__indirect_function_table.get(cb)(userdata));
   },
   JS_addResizeEventListener: (userdata, initialWidth, initialHeight, cb) => {
-    // NOTE window.innerWidth/innerHeight is sometimes slightly wrong causing scroll bar to appear
+    // NOTE scroll bar can appear without changing canvas size (EG after opening/closing console on chrome lol)
     // NOTE canvas.style.width/height divided by dpr gets you pixel perfect canvas but dpr includes zoom %
     // so we scale canvas in fullscreen only
     document.addEventListener('fullscreenchange', () => {
