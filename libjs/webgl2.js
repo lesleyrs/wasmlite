@@ -221,70 +221,16 @@ export const webgl2 = {
   glBindTexture: (target, id) => gl.bindTexture(target, textures[id]),
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
-    if (pixelsPtr) {
-      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
-      if (components === 0) {
-        console.error("Unsupported components format: ", format);
-      }
-
-      let pixels;
-      const count = width * height * components;
-      if (type === gl.FLOAT) {
-        const pixelPtr32 = pixelsPtr >> 2;
-        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
-      } else if (type === gl.UNSIGNED_BYTE) {
-        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
-      } else {
-        console.error("Unsupported texture data type: ", type);
-      }
-      gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
-    } else {
-      gl.texImage2D(target, level, internalformat, width, height, border, format, type, null);
-    }
+    const pixels = getPixels(pixelsPtr, width, height, depth, format, type);
+    gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
   },
   glTexImage3D: (target, level, internalformat, width, height, depth, border, format, type, pixelsPtr) => {
-    if (pixelsPtr) {
-      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
-      if (components === 0) {
-        console.error("Unsupported components format: ", format);
-      }
-
-      let pixels;
-      const count = width * height * depth * components;
-      if (type === gl.FLOAT) {
-        const pixelPtr32 = pixelsPtr >> 2;
-        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
-      } else if (type === gl.UNSIGNED_BYTE) {
-        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
-      } else {
-        console.error("Unsupported texture data type: ", type);
-      }
-      gl.texImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
-    } else {
-      gl.texImage3D(target, level, internalformat, width, height, depth, border, format, type, null);
-    }
+    const pixels = getPixels(pixelsPtr, width, height, depth, format, type);
+    gl.texImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
   },
   glTexSubImage3D: (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixelsPtr) => {
-    if (pixelsPtr) {
-      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
-      if (components === 0) {
-        console.error("Unsupported components format: ", format);
-      }
-
-      let pixels;
-      const count = width * height * depth * components;
-      if (type === gl.FLOAT) {
-        const pixelPtr32 = pixelsPtr >> 2;
-        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
-      } else if (type === gl.UNSIGNED_BYTE) {
-        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
-      } else {
-        console.error("Unsupported texture data type: ", type);
-      }
-      gl.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
-    } else {
-      console.error("pixels are null");
-    }
+    const pixels = getPixels(pixelsPtr, width, height, depth, format, type);
+    gl.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
   },
   glDeleteTextures: (n, ptr) => {
     for (let i = 0; i < n; i++) {
@@ -417,6 +363,33 @@ export const webgl2 = {
     return gl.isEnabled(cap);
   }
 };
+
+function getPixels(pixelsPtr, width, height, depth, format, type) {
+  if (!pixelsPtr) {
+    return null;
+  }
+
+  const components = {
+    [gl.RGB]: 3,
+    [gl.RGBA]: 4,
+  }[format];
+
+  if (!components) {
+    throw new Error(`Unsupported format: ${format}`);
+  }
+
+  const count = width * height * depth * components;
+
+  switch (type) {
+    case gl.FLOAT:
+      const pixelPtr32 = pixelsPtr >> 2;
+      return memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
+    case gl.UNSIGNED_BYTE:
+      return memory.u8.subarray(pixelsPtr, pixelsPtr + count);
+    default:
+      throw new Error(`Unsupported type: ${type}`);
+  }
+}
 
 function glGenObjects(n, ptr, createFunction, objectTable) {
   for (let i = 0; i < n; i++) {
