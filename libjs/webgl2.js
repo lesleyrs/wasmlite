@@ -1,4 +1,4 @@
-import { memory } from './loader.js'
+import { encoder, memory } from './loader.js'
 import { ptrToString, allocString } from './utils.js'
 import { ctx as gl } from './glue.js'
 
@@ -56,10 +56,6 @@ export const webgl2 = {
   glLinkProgram: (id) => {
     const program = programs[id];
     gl.linkProgram(program);
-    // NOTE TEMP
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program link error:', gl.getProgramInfoLog(program));
-    }
   },
   glUseProgram: (id) => {
     const program = programs[id];
@@ -80,7 +76,6 @@ export const webgl2 = {
       source += ptrToString(strPtr, length);
     }
 
-    // console.log(source); // TODO rm
     gl.shaderSource(shader, source);
   },
   glAttachShader: (programId, shaderId) => {
@@ -91,18 +86,6 @@ export const webgl2 = {
   glCompileShader: (id) => {
     const shader = shaders[id];
     gl.compileShader(shader);
-    // NOTE TEMP
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-    }
-  },
-  glGetShaderParameter: (id, name) => {
-    const shader = shaders[id];
-    console.log(gl.getShaderParameter(shader, name));
-  },
-  glGetShaderInfoLog: (id) => {
-    const shader = shaders[id];
-    console.log(gl.getShaderInfoLog(shader));
   },
   glGenVertexArrays: (n, ptr) => {
     glGenObjects(n, ptr, "createVertexArray", vaos);
@@ -149,23 +132,38 @@ export const webgl2 = {
   },
   glGetProgramiv: (id, pname, params) => {
     const program = programs[id];
-    gl.getProgramParameter(program, pname);
-    // TODO
     if (params) {
-      memory.u32[params >> 2] = 1;
+      memory.u32[params >> 2] = gl.getProgramParameter(program, pname);
     }
-  },
-  glGetProgramInfoLog: (id, bufSize, length, infoLog) => {
-    const program = programs[id];
-    gl.getProgramInfoLog(program);
-    // TODO
   },
   glGetShaderiv: (id, pname, params) => {
     const program = shaders[id];
-    gl.getShaderParameter(program, pname);
-    // TODO
     if (params) {
-      memory.u32[params >> 2] = 1;
+      memory.u32[params >> 2] = gl.getShaderParameter(program, pname);
+    }
+  },
+  glGetProgramInfoLog: (id, bufSize, lengthPtr, infoLogPtr) => {
+    const program = programs[id];
+    const str = gl.getProgramInfoLog(program) + "\0";
+    const bytes = encoder.encode(str);
+    const count = Math.min(bytes.length, bufSize);
+    if (infoLogPtr) {
+      memory.u8.set(bytes.subarray(0, count), infoLogPtr);
+    }
+    if (lengthPtr) {
+      memory.u32[lengthPtr >> 2] = count - (count === bytes.length ? 1 : 0);
+    }
+  },
+  glGetShaderInfoLog: (id, bufSize, lengthPtr, infoLogPtr) => {
+    const shader = shaders[id];
+    const str = gl.getShaderInfoLog(shader) + "\0";
+    const bytes = encoder.encode(str);
+    const count = Math.min(bytes.length, bufSize);
+    if (infoLogPtr) {
+      memory.u8.set(bytes.subarray(0, count), infoLogPtr);
+    }
+    if (lengthPtr) {
+      memory.u32[lengthPtr >> 2] = count - (count === bytes.length ? 1 : 0);
     }
   },
   glDeleteProgram: (id) => {
@@ -224,10 +222,7 @@ export const webgl2 = {
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
     if (pixelsPtr) {
-      const components =
-        format === gl.RGBA ? 4 :
-        format === gl.RGB ? 3 :
-        0;
+      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
       if (components === 0) {
         console.error("Unsupported components format: ", format);
       }
@@ -245,6 +240,50 @@ export const webgl2 = {
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     } else {
       gl.texImage2D(target, level, internalformat, width, height, border, format, type, null);
+    }
+  },
+  glTexImage3D: (target, level, internalformat, width, height, depth, border, format, type, pixelsPtr) => {
+    if (pixelsPtr) {
+      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
+      if (components === 0) {
+        console.error("Unsupported components format: ", format);
+      }
+
+      let pixels;
+      const count = width * height * depth * components;
+      if (type === gl.FLOAT) {
+        const pixelPtr32 = pixelsPtr >> 2;
+        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
+      } else if (type === gl.UNSIGNED_BYTE) {
+        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
+      } else {
+        console.error("Unsupported texture data type: ", type);
+      }
+      gl.texImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+    } else {
+      gl.texImage3D(target, level, internalformat, width, height, depth, border, format, type, null);
+    }
+  },
+  glTexSubImage3D: (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixelsPtr) => {
+    if (pixelsPtr) {
+      const components = format === gl.RGBA ? 4 : format === gl.RGB ? 3 : 0;
+      if (components === 0) {
+        console.error("Unsupported components format: ", format);
+      }
+
+      let pixels;
+      const count = width * height * depth * components;
+      if (type === gl.FLOAT) {
+        const pixelPtr32 = pixelsPtr >> 2;
+        pixels = memory.f32.subarray(pixelPtr32, pixelPtr32 + count);
+      } else if (type === gl.UNSIGNED_BYTE) {
+        pixels = memory.u8.subarray(pixelsPtr, pixelsPtr + count);
+      } else {
+        console.error("Unsupported texture data type: ", type);
+      }
+      gl.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+    } else {
+      console.error("pixels are null");
     }
   },
   glDeleteTextures: (n, ptr) => {
