@@ -121,6 +121,7 @@ export const glue = {
       // TODO allow setting attributes
       ctx = canvas.getContext(ctxString, { antialias: false, alpha: false });
       optimizeAssumingFlatsHaveSameFirstAndLastData(ctx);
+      ctx.getExtension("EXT_texture_filter_anisotropic");
 
       const debugInfo = ctx.getExtension('WEBGL_debug_renderer_info');
       if (debugInfo) {

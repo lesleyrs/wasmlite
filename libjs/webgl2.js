@@ -219,7 +219,10 @@ export const webgl2 = {
     glGenObjects(n, ptr, "createTexture", textures);
   },
   glBindTexture: (target, id) => gl.bindTexture(target, textures[id]),
+  glGetIntegerv: (pname, ptr) => memory.u32[ptr >> 2] = gl.getParameter(pname),
+  glGetFloatv: (pname, ptr) => memory.f32[ptr >> 2] = gl.getParameter(pname),
   glTexParameteri: (target, pname, param) => gl.texParameteri(target, pname, param),
+  glTexParameterf: (target, pname, param) => gl.texParameterf(target, pname, param),
   glTexImage2D: (target, level, internalformat, width, height, border, format, type, pixelsPtr) => {
     const pixels = getPixels(pixelsPtr, width, height, depth, format, type);
     gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
@@ -346,9 +349,6 @@ export const webgl2 = {
   },
   glGetError: () => {
     return gl.getError();
-  },
-  glGetIntegerv: (pname, ptr) => {
-    memory.u32[ptr >> 2] = gl.getParameter(pname);
   },
   glGetBufferParameteriv: (target, pname, ptr) => {
     memory.u32[ptr >> 2] = gl.getBufferParameter(target, pname);
